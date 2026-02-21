@@ -468,6 +468,17 @@
           "name": "meta.crypto.systemverilog"
         },
         {
+          "match": "(`)(uvm_(?:info|warning|error|fatal|message|do(?:_with|_pri)?|create(?:_pri)?|send(?:_pri)?|rand_send(?:_pri)?|component_utils(?:_begin|_end)?|object_utils(?:_begin|_end)?|field_(?:int|object|string|enum|real|event|queue|aa_int_key|aa_string_key|aa_object_key|aa_object_string_key)|declare_p_sequencer|analysis_imp_decl|analysis_export_decl|analysis_port_decl))\\b",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.directive.systemverilog"
+            },
+            "2": {
+              "name": "keyword.control.directive.uvm.systemverilog"
+            }
+          }
+        },
+        {
           "match": "(`)([a-zA-Z_][a-zA-Z0-9_$]*)\\b",
           "captures": {
             "1": {
@@ -860,7 +871,11 @@
         },
         {
           "match": "\\b(?:this|super|null)\\b",
-          "name": "constant.language.systemverilog"
+          "name": "variable.language.systemverilog"
+        },
+        {
+          "match": "\\bUVM_(?:NONE|LOW|MEDIUM|HIGH|FULL|DEBUG|NO_ACTION|DISPLAY|LOG|COUNT|EXIT|CALL_HOOK|STOP|RM_RECORD|ALL_ON|COPY|NOCOPY|COMPARE|NOCOMPARE|PRINT|NOPRINT|RECORD|NORECORD|PACK|NOPACK)\\b",
+          "name": "constant.other.uvm.systemverilog"
         },
         {
           "match": "\\b([A-Z][A-Z0-9_]*)\\b",
@@ -879,8 +894,16 @@
     "operators": {
       "patterns": [
         {
-          "match": "\\b(?:dist|inside|with|intersect|and|or|throughout|within|first_match)\\b|:=|:/|\\|->|\\|=>|->>|\\*>|#-#|#=#|&&&",
-          "name": "keyword.operator.logical.systemverilog"
+          "match": "\\b(?:dist|inside|with|intersect|and|or|throughout|within|first_match)\\b",
+          "name": "keyword.operator.logical.word.systemverilog"
+        },
+        {
+          "match": "\\|->|\\|=>|->>|\\*>|#-#|#=#|&&&",
+          "name": "keyword.operator.logical.assertion.systemverilog"
+        },
+        {
+          "match": ":=|:/",
+          "name": "keyword.operator.logical.rand.systemverilog"
         },
         {
           "match": "@|##|#|->|<->",
@@ -911,8 +934,16 @@
           "name": "keyword.operator.bitwise.shift.systemverilog"
         },
         {
-          "match": "~&|~\\||~|\\^~|~\\^|&|\\||\\^|{|'{|}|:|\\?",
+          "match": "~&|~\\||~|\\^~|~\\^|&|\\||\\^",
           "name": "keyword.operator.bitwise.systemverilog"
+        },
+        {
+          "match": "{|'{|}",
+          "name": "keyword.operator.concatenation.systemverilog"
+        },
+        {
+          "match": ":|\\?",
+          "name": "keyword.operator.ternary.systemverilog"
         },
         {
           "match": "<=|<|>=|>|==\\?|!=\\?|===|!==|==|!=",
@@ -1088,7 +1119,7 @@
           "name": "storage.type.built-in.systemverilog"
         },
         {
-          "match": "[ \\t\\r\\n]*\\b(uvm_(?:root|transaction|component|monitor|driver|test|env|object|agent|sequence_base|sequence_item|sequence_state|sequencer|sequencer_base|sequence|component_registry|analysis_imp|analysis_port|analysis_export|config_db|active_passive_enum|phase|verbosity|tlm_analysis_fifo|tlm_fifo|report_server|objection|recorder|domain|reg_field|reg_block|reg|bitstream_t|radix_enum|printer|packer|comparer|scope_stack))\\b",
+          "match": "[ \\t\\r\\n]*\\b(uvm_(?:root|transaction|component|monitor|driver|test|env|object|agent|sequence(?:_base|_item|_state)?|sequencer(?:_base)?|component_registry|analysis_(?:imp|port|export)|config_db|active_passive_enum|phase|verbosity|tlm_(?:analysis_fifo|fifo)|report_server|objection|recorder|domain|reg(?:_field|_block)?|bitstream_t|radix_enum|printer|packer|comparer|scope_stack|report_object|callback|factory|subscriber|scoreboard|mem|vreg|predict))\\b",
           "name": "storage.type.uvm.systemverilog"
         }
       ]

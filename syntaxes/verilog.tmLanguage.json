@@ -162,8 +162,12 @@
     "keywords": {
       "patterns": [
         {
-          "match": "\\b(always|and|assign|attribute|begin|buf|bufif0|bufif1|case[xz]?|cmos|deassign|default|defparam|disable|edge|else|end(attribute|case|function|generate|module|primitive|specify|table|task)?|event|for|force|forever|fork|function|generate|genvar|highz(01)|if(none)?|initial|inout|input|integer|join|localparam|medium|module|large|macromodule|nand|negedge|nmos|nor|not|notif(01)|or|output|parameter|pmos|posedge|primitive|pull0|pull1|pulldown|pullup|rcmos|real|realtime|reg|release|repeat|rnmos|rpmos|rtran|rtranif(01)|scalared|signed|small|specify|specparam|strength|strong0|strong1|supply0|supply1|table|task|time|tran|tranif(01)|tri(01)?|tri(and|or|reg)|unsigned|vectored|wait|wand|weak(01)|while|wire|wor|xnor|xor)\\b",
-          "name": "keyword.other.verilog"
+          "match": "\\b(always|assign|attribute|begin|case[xz]?|cmos|deassign|default|defparam|disable|edge|else|end(attribute|case|function|generate|module|primitive|specify|table|task)?|event|for|force|forever|fork|function|generate|genvar|highz(01)|if(none)?|initial|join|localparam|medium|module|large|macromodule|negedge|nmos|notif(01)|parameter|pmos|posedge|primitive|pull0|pull1|pulldown|pullup|rcmos|release|repeat|rnmos|rpmos|rtran|rtranif(01)|scalared|signed|small|specify|specparam|strength|strong0|strong1|table|task|tran|tranif(01)|unsigned|vectored|wait|weak(01)|while|wire)\\b",
+          "name": "keyword.control.verilog"
+        },
+        {
+          "match": "\\b(and|buf|bufif0|bufif1|nand|nor|not|or|xnor|xor|wand|wor|tri(01)?|tri(and|or|reg)|reg|wire|integer|time|real|realtime)\\b",
+          "name": "storage.type.verilog"
         },
         {
           "match": "^\\s*`((cell)?define|default_(decay_time|nettype|trireg_strength)|delay_mode_(path|unit|zero)|ifdef|ifndef|include|end(if|celldefine)|else|(no)?unconnected_drive|resetall|timescale|undef)\\b",
@@ -244,8 +248,28 @@
     "operators": {
       "patterns": [
         {
-          "match": "\\+|-|\\*|/|%|(<|>)=?|(!|=)?==?|!|&&?|\\|\\|?|\\^?~|~\\^?",
-          "name": "keyword.operator.verilog"
+          "match": "\\+|-|\\*|/",
+          "name": "keyword.operator.arithmetic.verilog"
+        },
+        {
+          "match": "&&|\\|\\||!",
+          "name": "keyword.operator.logical.verilog"
+        },
+        {
+          "match": "&|\\||\\^|~|\\^~|~\\^",
+          "name": "keyword.operator.bitwise.verilog"
+        },
+        {
+          "match": "(<|>)=?|(!|=)?==?|!=?|===",
+          "name": "keyword.operator.comparison.verilog"
+        },
+        {
+          "match": "=",
+          "name": "keyword.operator.assignment.verilog"
+        },
+        {
+          "match": "%|#",
+          "name": "keyword.operator.other.verilog"
         }
       ]
     },
