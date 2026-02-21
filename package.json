@@ -83,7 +83,12 @@
           "verilogLinter.linting.vcs.executable": {
             "type": "string",
             "default": "vcs",
-            "description": "Absolute path to the vcs executable (or 'vcs' if in PATH)."
+            "description": "Path to the VCS executable (e.g. /tools/synopsys/vcs/bin/vcs). Supports ${env:VAR}."
+          },
+          "verilogLinter.linting.vcs.vcsHome": {
+            "type": "string",
+            "default": "",
+            "description": "Path to the VCS installation root (VCS_HOME). If set, the extension will look for bin/vcs here. Supports ${env:VAR}."
           },
           "verilogLinter.linting.vcs.arguments": {
             "type": "string",

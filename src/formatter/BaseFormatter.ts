@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as child from 'child_process';
 import * as path from 'path';
+import { expandEnvironmentVariables } from '../utils';
 
 export interface FormatterConfig {
   executable: string;
@@ -39,10 +40,11 @@ export default abstract class BaseFormatter implements vscode.DocumentFormatting
   ): vscode.ProviderResult<vscode.TextEdit[]> {
     return new Promise((resolve, reject) => {
       const exe = this.config.executable || this.name;
+      const expandedExe = expandEnvironmentVariables(exe);
       let args = this.config.arguments ? this.config.arguments.split(' ') : [];
       args = this.getFormatArguments(args, document, options);
 
-      const command = `"${exe}" ${args.join(' ')}`;
+      const command = `"${expandedExe}" ${args.join(' ')}`;
       const cwd = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : path.dirname(document.uri.fsPath);
 
       this.outputChannel.appendLine(`[Format Execute] command: ${command}`);

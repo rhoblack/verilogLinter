@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as child from 'child_process';
 import * as path from 'path';
 import BaseLinter from './BaseLinter';
+import { expandEnvironmentVariables } from '../utils';
 
 export default class VcsLinter extends BaseLinter {
   private configuration!: vscode.WorkspaceConfiguration;
@@ -12,13 +13,25 @@ export default class VcsLinter extends BaseLinter {
 
   protected override updateConfig() {
     this.configuration = vscode.workspace.getConfiguration('verilogLinter.linting.vcs');
-    const exe = this.configuration.get<string>('executable', 'vcs');
+    let exe = this.configuration.get<string>('executable', 'vcs');
+    const vcsHome = this.configuration.get<string>('vcsHome', '');
     const args = this.configuration.get<string>('arguments', '-lint=all -sverilog');
-    this.config.executable = exe;
-    this.config.arguments = args;
+
+    // 1. If vcsHome is set, use it to find VCS
+    if (vcsHome) {
+        const expandedHome = expandEnvironmentVariables(vcsHome);
+        exe = path.join(expandedHome, 'bin', 'vcs');
+    } 
+    // 2. If exe is just 'vcs' (default) and VCS_HOME env var exists, try to use it
+    else if (exe === 'vcs' && process.env.VCS_HOME) {
+        exe = path.join(process.env.VCS_HOME, 'bin', 'vcs');
+    }
+
+    this.config.executable = expandEnvironmentVariables(exe);
+    this.config.arguments = expandEnvironmentVariables(args);
     const paths = this.configuration.get<string[]>('includePath', []);
     this.config.includePath = this.resolveIncludePaths(paths);
-    this.outputChannel.appendLine(`[VCS Config] loaded executable: '${exe}' (type: ${typeof exe}), arguments: '${args}'`);
+    this.outputChannel.appendLine(`[VCS Config] loaded executable: '${this.config.executable}', arguments: '${this.config.arguments}'`);
   }
 
   protected lint(doc: vscode.TextDocument) {

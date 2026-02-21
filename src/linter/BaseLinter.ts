@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { expandEnvironmentVariables } from '../utils';
 
 export interface LinterConfig {
   executable: string;
@@ -41,10 +42,11 @@ export default abstract class BaseLinter {
     }
     const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
     return paths.map((p) => {
-      if (path.isAbsolute(p)) return p;
-      return path.join(root, p);
+        const expanded = expandEnvironmentVariables(p);
+        if (path.isAbsolute(expanded)) return expanded;
+        return path.join(root, expanded);
     });
-  }
+}
 
   protected getWorkingDirectory(doc: vscode.TextDocument): string {
     if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
