@@ -417,10 +417,10 @@
           "match": "(`)(else|endif|endcelldefine|celldefine|nounconnected_drive|resetall|undefineall|end_keywords|__FILE__|__LINE__)\\b",
           "captures": {
             "1": {
-              "name": "punctuation.definition.directive.systemverilog"
+              "name": "keyword.control.directive.systemverilog"
             },
             "2": {
-              "name": "string.regexp.systemverilog"
+              "name": "keyword.control.directive.systemverilog"
             }
           }
         },
@@ -428,10 +428,10 @@
           "match": "(`)(ifdef|ifndef|elsif|define|undef|pragma)[ \\t\\r\\n]+([a-zA-Z_][a-zA-Z0-9_$]*)\\b",
           "captures": {
             "1": {
-              "name": "punctuation.definition.directive.systemverilog"
+              "name": "keyword.control.directive.systemverilog"
             },
             "2": {
-              "name": "string.regexp.systemverilog"
+              "name": "keyword.control.directive.systemverilog"
             },
             "3": {
               "name": "variable.other.constant.preprocessor.systemverilog"
@@ -442,10 +442,10 @@
           "match": "(`)(include|timescale|default_nettype|unconnected_drive|line|begin_keywords)\\b",
           "captures": {
             "1": {
-              "name": "punctuation.definition.directive.systemverilog"
+              "name": "keyword.control.directive.systemverilog"
             },
             "2": {
-              "name": "string.regexp.systemverilog"
+              "name": "keyword.control.directive.systemverilog"
             }
           }
         },
@@ -453,19 +453,19 @@
           "begin": "(`)(protected)\\b",
           "beginCaptures": {
             "1": {
-              "name": "punctuation.definition.directive.systemverilog"
+              "name": "keyword.control.directive.systemverilog"
             },
             "2": {
-              "name": "string.regexp.systemverilog"
+              "name": "keyword.control.directive.systemverilog"
             }
           },
           "end": "(`)(endprotected)\\b",
           "endCaptures": {
             "1": {
-              "name": "punctuation.definition.directive.systemverilog"
+              "name": "keyword.control.directive.systemverilog"
             },
             "2": {
-              "name": "string.regexp.systemverilog"
+              "name": "keyword.control.directive.systemverilog"
             }
           },
           "name": "meta.crypto.systemverilog"
@@ -474,18 +474,22 @@
           "match": "(`)(uvm_(?:info|warning|error|fatal|message|do(?:_with|_pri)?|create(?:_pri)?|send(?:_pri)?|rand_send(?:_pri)?|component_utils(?:_begin|_end)?|object_utils(?:_begin|_end)?|field_(?:int|object|string|enum|real|event|queue|aa_int_key|aa_string_key|aa_object_key|aa_object_string_key)|declare_p_sequencer|analysis_imp_decl|analysis_export_decl|analysis_port_decl))\\b",
           "captures": {
             "1": {
-              "name": "punctuation.definition.directive.systemverilog"
+              "name": "keyword.control.directive.systemverilog"
             },
             "2": {
-              "name": "keyword.control.directive.uvm.systemverilog"
+              "name": "keyword.control.directive.systemverilog"
             }
           }
+        },
+        {
+          "match": "\\b(uvm_report_(?:info|warning|error|fatal)|start_item|finish_item|randomize|type_id|create|get_config_.*|set_config_.*|put|get|peek|try_.*|can_.*|write|connect|build_phase|connect_phase|run_phase|report_phase|main_phase)\\b",
+          "name": "support.function.uvm.systemverilog"
         },
         {
           "match": "(`)([a-zA-Z_][a-zA-Z0-9_$]*)\\b",
           "captures": {
             "1": {
-              "name": "punctuation.definition.directive.systemverilog"
+              "name": "keyword.control.directive.systemverilog"
             },
             "2": {
               "name": "variable.other.constant.preprocessor.systemverilog"
