@@ -126,6 +126,8 @@ export class HighlightManager implements vscode.Disposable {
     private disposables: vscode.Disposable[] = [];
     private outputChannel: vscode.OutputChannel;
     private debounceTimer: ReturnType<typeof setTimeout> | undefined;
+    private lastApplyTime = 0; // Cooldown: suppress events triggered by our own update
+    private static readonly COOLDOWN_MS = 500;
 
     constructor() {
         this.outputChannel = vscode.window.createOutputChannel('Verilog Highlight');
@@ -151,9 +153,15 @@ export class HighlightManager implements vscode.Disposable {
     }
 
     /**
-     * Debounced scheduler — collapses multiple rapid events into one execution.
+     * Debounced scheduler with cooldown — collapses rapid events AND
+     * suppresses secondary events triggered by our own config update.
      */
     private scheduleApply(reason: string): void {
+        // If we just applied, this event is caused by our own update → ignore
+        if (Date.now() - this.lastApplyTime < HighlightManager.COOLDOWN_MS) {
+            return;
+        }
+
         if (this.debounceTimer) {
             clearTimeout(this.debounceTimer);
         }
@@ -174,6 +182,7 @@ export class HighlightManager implements vscode.Disposable {
 
         if (mode === 'off') {
             await this.clearHighlight();
+            this.lastApplyTime = Date.now();
             this.outputChannel.appendLine('[HighlightManager] Highlight mode is OFF – cleared custom rules.');
             return;
         }
@@ -208,6 +217,7 @@ export class HighlightManager implements vscode.Disposable {
         };
 
         await editorConfig.update('tokenColorCustomizations', merged, vscode.ConfigurationTarget.Global);
+        this.lastApplyTime = Date.now();
         this.outputChannel.appendLine(`[HighlightManager] Applied palette: ${label} (${palette.length} rules)`);
     }
 
