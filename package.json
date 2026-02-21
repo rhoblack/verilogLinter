@@ -1,8 +1,9 @@
 {
   "name": "verilog-linter",
   "displayName": "Verilog-HDL Linter",
+  "publisher": "rhoblack",
   "description": "A Verilog-HDL linter extension for VS Code",
-  "author": "노진호",
+  "author": "Rho JIN-HO(rhoblack)",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.90.0"
