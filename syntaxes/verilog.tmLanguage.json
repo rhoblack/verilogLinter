@@ -248,28 +248,36 @@
     "operators": {
       "patterns": [
         {
-          "match": "\\+|-|\\*|/",
-          "name": "keyword.operator.arithmetic.verilog"
-        },
-        {
           "match": "&&|\\|\\||!",
           "name": "keyword.operator.logical.verilog"
         },
         {
-          "match": "&|\\||\\^|~|\\^~|~\\^",
-          "name": "keyword.operator.bitwise.verilog"
-        },
-        {
-          "match": "(<|>)=?|(!|=)?==?|!=?|===",
+          "match": "==\\?|!=\\?|===|!==|==|!=",
           "name": "keyword.operator.comparison.verilog"
         },
         {
-          "match": "=",
+          "match": "<=|>=|<|>",
+          "name": "keyword.operator.relational.verilog"
+        },
+        {
+          "match": "\\+=|-=|\\*=|/=|%=|&=|\\^=|\\|=|<<=|>>=|<<<=|>>>=|=",
           "name": "keyword.operator.assignment.verilog"
         },
         {
-          "match": "%|#",
-          "name": "keyword.operator.other.verilog"
+          "match": "\\+|\\-|\\*|/|%|\\*\\*",
+          "name": "keyword.operator.arithmetic.verilog"
+        },
+        {
+          "match": "&|\\^|\\||~|<<|>>|<<<|>>>",
+          "name": "keyword.operator.bitwise.verilog"
+        },
+        {
+          "match": "\\?|:",
+          "name": "keyword.operator.conditional.verilog"
+        },
+        {
+          "match": "#",
+          "name": "keyword.operator.delay.verilog"
         }
       ]
     },

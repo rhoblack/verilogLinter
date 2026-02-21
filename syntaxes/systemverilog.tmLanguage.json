@@ -474,7 +474,7 @@
               "name": "punctuation.definition.directive.systemverilog"
             },
             "2": {
-              "name": "keyword.control.directive.uvm.systemverilog"
+              "name": "support.function.macro.uvm.systemverilog"
             }
           }
         },
@@ -874,8 +874,8 @@
           "name": "variable.language.systemverilog"
         },
         {
-          "match": "\\bUVM_(?:NONE|LOW|MEDIUM|HIGH|FULL|DEBUG|NO_ACTION|DISPLAY|LOG|COUNT|EXIT|CALL_HOOK|STOP|RM_RECORD|ALL_ON|COPY|NOCOPY|COMPARE|NOCOMPARE|PRINT|NOPRINT|RECORD|NORECORD|PACK|NOPACK)\\b",
-          "name": "constant.other.uvm.systemverilog"
+          "match": "\\bUVM_(?:NONE|LOW|MEDIUM|HIGH|FULL|DEBUG|NO_ACTION|DISPLAY|LOG|COUNT|EXIT|CALL_HOOK|STOP|RM_RECORD|ALL_ON|COPY|NOCOPY|COMPARE|NOCOMPARE|PRINT|NOPRINT|RECORD|NORECORD|PACK|NOPACK|DEFAULT|ALL_ON|HEX|DEC|BIN|OCT|STRING|TIME|ENUM|REAL|EVENT|QUEUE|AA_INT_key|AA_STRING_key|AA_OBJECT_key|AA_OBJECT_STRING_key|ACTIVE|PASSIVE)\\b",
+          "name": "variable.other.constant.uvm.systemverilog"
         },
         {
           "match": "\\b([A-Z][A-Z0-9_]*)\\b",
@@ -894,60 +894,40 @@
     "operators": {
       "patterns": [
         {
-          "match": "\\b(?:dist|inside|with|intersect|and|or|throughout|within|first_match)\\b",
-          "name": "keyword.operator.logical.word.systemverilog"
+          "match": "::",
+          "name": "keyword.operator.scope.systemverilog"
         },
         {
-          "match": "\\|->|\\|=>|->>|\\*>|#-#|#=#|&&&",
-          "name": "keyword.operator.logical.assertion.systemverilog"
+          "match": "->|=>",
+          "name": "keyword.operator.arrow.systemverilog"
         },
         {
-          "match": ":=|:/",
-          "name": "keyword.operator.logical.rand.systemverilog"
-        },
-        {
-          "match": "@|##|#|->|<->",
-          "name": "keyword.operator.channel.systemverilog"
-        },
-        {
-          "match": "\\+=|-=|/=|\\*=|%=|&=|\\|=|\\^=|>>>=|>>=|<<<=|<<=|<=|=",
-          "name": "keyword.operator.assignment.systemverilog"
-        },
-        {
-          "match": "\\+\\+",
-          "name": "keyword.operator.increment.systemverilog"
-        },
-        {
-          "match": "--",
-          "name": "keyword.operator.decrement.systemverilog"
-        },
-        {
-          "match": "\\+|-|\\*\\*|\\*|/|%",
-          "name": "keyword.operator.arithmetic.systemverilog"
-        },
-        {
-          "match": "!|&&|\\|\\|",
+          "match": "&&|\\|\\||!|\\b(and|or|not)\\b",
           "name": "keyword.operator.logical.systemverilog"
         },
         {
-          "match": "<<<|<<|>>>|>>",
-          "name": "keyword.operator.bitwise.shift.systemverilog"
+          "match": "==\\?|!=\\?|===|!==|==|!=",
+          "name": "keyword.operator.comparison.systemverilog"
         },
         {
-          "match": "~&|~\\||~|\\^~|~\\^|&|\\||\\^",
+          "match": "<=|>=|<|>",
+          "name": "keyword.operator.relational.systemverilog"
+        },
+        {
+          "match": "\\+=|-=|\\*=|/=|%=|&=|\\^=|\\|=|<<=|>>=|<<<=|>>>=|=",
+          "name": "keyword.operator.assignment.systemverilog"
+        },
+        {
+          "match": "\\+|\\-|\\*|/|%|\\*\\*",
+          "name": "keyword.operator.arithmetic.systemverilog"
+        },
+        {
+          "match": "&|\\^|\\||~|<<|>>|<<<|>>>",
           "name": "keyword.operator.bitwise.systemverilog"
         },
         {
-          "match": "{|'{|}",
-          "name": "keyword.operator.concatenation.systemverilog"
-        },
-        {
-          "match": ":|\\?",
-          "name": "keyword.operator.ternary.systemverilog"
-        },
-        {
-          "match": "<=|<|>=|>|==\\?|!=\\?|===|!==|==|!=",
-          "name": "keyword.operator.comparison.systemverilog"
+          "match": "\\?|:",
+          "name": "keyword.operator.conditional.systemverilog"
         }
       ]
     },
@@ -1099,28 +1079,16 @@
     "built-ins": {
       "patterns": [
         {
-          "match": "[ \\t\\r\\n]*\\b(bit|logic|reg)\\b",
-          "name": "storage.type.vector.systemverilog"
+          "match": "[ \\t\\r\\n]*\\b(bit|logic|reg|byte|shortint|int|longint|integer|time|genvar|shortreal|real|realtime|supply[01]|tri(?:and|or|reg|[01])?|uwire|wire|wand|wor|void|string|process|event)\\b",
+          "name": "support.type.systemverilog"
         },
         {
-          "match": "[ \\t\\r\\n]*\\b(byte|shortint|int|longint|integer|time|genvar)\\b",
-          "name": "storage.type.atom.systemverilog"
+          "match": "[ \\t\\r\\n]*\\b(genvar|var|signed|unsigned|const)\\b",
+          "name": "storage.modifier.systemverilog"
         },
         {
-          "match": "[ \\t\\r\\n]*\\b(shortreal|real|realtime)\\b",
-          "name": "storage.type.notint.systemverilog"
-        },
-        {
-          "match": "[ \\t\\r\\n]*\\b(supply[01]|tri|triand|trior|trireg|tri[01]|uwire|wire|wand|wor)\\b",
-          "name": "storage.type.net.systemverilog"
-        },
-        {
-          "match": "[ \\t\\r\\n]*\\b(genvar|var|void|signed|unsigned|string|const|process)\\b",
-          "name": "storage.type.built-in.systemverilog"
-        },
-        {
-          "match": "[ \\t\\r\\n]*\\b(uvm_(?:root|transaction|component|monitor|driver|test|env|object|agent|sequence(?:_base|_item|_state)?|sequencer(?:_base)?|component_registry|analysis_(?:imp|port|export)|config_db|active_passive_enum|phase|verbosity|tlm_(?:analysis_fifo|fifo)|report_server|objection|recorder|domain|reg(?:_field|_block)?|bitstream_t|radix_enum|printer|packer|comparer|scope_stack|report_object|callback|factory|subscriber|scoreboard|mem|vreg|predict))\\b",
-          "name": "storage.type.uvm.systemverilog"
+          "match": "[ \\t\\r\\n]*\\b(uvm_(?:root|transaction|component|monitor|driver|test|env|object|agent|sequence(?:_base|_item|_state)?|sequencer(?:_base)?|component_registry|analysis_(?:imp|port|export)|config_db|active_passive_enum|phase|verbosity|tlm_(?:analysis_fifo|fifo)|report_server|objection|recorder|domain|reg(?:_field|_block)?|bitstream_t|radix_enum|printer|packer|comparer|scope_stack|report_object|callback|factory|subscriber|scoreboard|mem|vreg|predict|void|bit|byte|shortint|int|longint|integer|time|genvar|shortreal|real|realtime|string|process|event))\\b",
+          "name": "support.class.uvm.systemverilog"
         }
       ]
     },
