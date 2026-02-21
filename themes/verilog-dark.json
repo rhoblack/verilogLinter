@@ -1,0 +1,239 @@
+{
+  "name": "Verilog Dark (Vibrant)",
+  "$schema": "vscode://schemas/color-theme",
+  "type": "dark",
+  "colors": {
+    "editor.background": "#1E1E2E",
+    "editor.foreground": "#CDD6F4",
+    "editorLineNumber.foreground": "#45475A",
+    "editorIndentGuide.background1": "#313244"
+  },
+  "tokenColors": [
+    {
+      "name": "VerilogM - Comment (Block)",
+      "scope": ["comment.block", "comment.line"],
+      "settings": { "foreground": "#6C7086", "fontStyle": "italic" }
+    },
+    {
+      "name": "VerilogM - String",
+      "scope": ["string.quoted.double"],
+      "settings": { "foreground": "#A6E3A1" }
+    },
+    {
+      "name": "VerilogM - Escape character",
+      "scope": ["constant.character.escape"],
+      "settings": { "foreground": "#FAB387" }
+    },
+    {
+      "name": "VerilogM - Format Placeholder",
+      "scope": ["constant.character.format.placeholder"],
+      "settings": { "foreground": "#F38BA8", "fontStyle": "bold" }
+    },
+    {
+      "name": "VerilogM - Compiler Directive Macro (backtick)",
+      "scope": ["entity.name.function.preprocessor", "meta.preprocessor"],
+      "settings": { "foreground": "#CBA6F7", "fontStyle": "italic" }
+    },
+    {
+      "name": "VerilogM - Compiler Directive Keyword",
+      "scope": ["keyword.other.compiler-directive"],
+      "settings": { "foreground": "#B4BEFE" }
+    },
+    {
+      "name": "VerilogM - Module/Class/Package (structural type)",
+      "scope": [
+        "storage.type.module",
+        "storage.type.interface",
+        "storage.type.class",
+        "storage.type.package",
+        "storage.type.program",
+        "storage.type.udp",
+        "storage.type.config"
+      ],
+      "settings": { "foreground": "#89DCEB", "fontStyle": "bold" }
+    },
+    {
+      "name": "VerilogM - Function/Task (subprogram type)",
+      "scope": [
+        "storage.type.function",
+        "storage.type.task"
+      ],
+      "settings": { "foreground": "#89B4FA", "fontStyle": "bold" }
+    },
+    {
+      "name": "VerilogM - Control Keyword (if/else/for/always)",
+      "scope": [
+        "keyword.control",
+        "keyword.control.verilog",
+        "keyword.control.systemverilog"
+      ],
+      "settings": { "foreground": "#F38BA8" }
+    },
+    {
+      "name": "VerilogM - Block Keywords (begin/end/fork/join)",
+      "scope": [
+        "keyword.control.block",
+        "keyword.other.block"
+      ],
+      "settings": { "foreground": "#CBA6F7" }
+    },
+    {
+      "name": "VerilogM - Port Direction (input/output/inout)",
+      "scope": [
+        "keyword.other.port"
+      ],
+      "settings": { "foreground": "#FAB387", "fontStyle": "bold" }
+    },
+    {
+      "name": "VerilogM - Other Keywords",
+      "scope": [
+        "keyword.other",
+        "keyword.other.verilog",
+        "keyword.other.systemverilog"
+      ],
+      "settings": { "foreground": "#94E2D5" }
+    },
+    {
+      "name": "VerilogM - Storage Modifier (rand/virtual/const/static)",
+      "scope": [
+        "storage.modifier"
+      ],
+      "settings": { "foreground": "#F5C2E7" }
+    },
+    {
+      "name": "VerilogM - Built-in Types (logic/bit/wire/reg)",
+      "scope": [
+        "storage.type.built-in",
+        "support.type",
+        "support.type.verilog",
+        "support.type.systemverilog"
+      ],
+      "settings": { "foreground": "#74C7EC" }
+    },
+    {
+      "name": "VerilogM - System Tasks ($clog2 / $display)",
+      "scope": [
+        "support.function.builtin",
+        "support.function.builtin.verilog",
+        "support.function.builtin.systemverilog",
+        "entity.name.function.call.system",
+        "entity.name.tag"
+      ],
+      "settings": { "foreground": "#F9E2AF", "fontStyle": "bold" }
+    },
+    {
+      "name": "VerilogM - UVM Classes",
+      "scope": [
+        "support.class.uvm"
+      ],
+      "settings": { "foreground": "#A6E3A1" }
+    },
+    {
+      "name": "VerilogM - UVM Functions",
+      "scope": [
+        "support.function.uvm"
+      ],
+      "settings": { "foreground": "#94E2D5" }
+    },
+    {
+      "name": "VerilogM - UVM/User Constants",
+      "scope": [
+        "constant.other",
+        "constant.other.uvm",
+        "constant.language.strength"
+      ],
+      "settings": { "foreground": "#EBA0AC" }
+    },
+    {
+      "name": "VerilogM - Module Instance Name",
+      "scope": [
+        "entity.name.type.module"
+      ],
+      "settings": { "foreground": "#89DCEB", "fontStyle": "italic" }
+    },
+    {
+      "name": "VerilogM - Numbers",
+      "scope": [
+        "constant.numeric",
+        "constant.numeric.integer",
+        "constant.numeric.float",
+        "constant.numeric.time"
+      ],
+      "settings": { "foreground": "#B5CEA8" }
+    },
+    {
+      "name": "VerilogM - Number Size (32 in 32'h...)",
+      "scope": [
+        "constant.numeric.size"
+      ],
+      "settings": { "foreground": "#F5C2E7" }
+    },
+    {
+      "name": "VerilogM - Number Base ('h/'b/'d/'o)",
+      "scope": [
+        "constant.numeric.base"
+      ],
+      "settings": { "foreground": "#FAB387" }
+    },
+    {
+      "name": "VerilogM - Number Digits",
+      "scope": [
+        "constant.numeric.digit",
+        "constant.numeric.sized-integer"
+      ],
+      "settings": { "foreground": "#B5CEA8" }
+    },
+    {
+      "name": "VerilogM - Special Constants ('0 '1 'x 'z)",
+      "scope": [
+        "constant.numeric.special"
+      ],
+      "settings": { "foreground": "#F38BA8" }
+    },
+    {
+      "name": "VerilogM - Comparison Operators",
+      "scope": [
+        "keyword.operator.comparison"
+      ],
+      "settings": { "foreground": "#F38BA8" }
+    },
+    {
+      "name": "VerilogM - Assignment Operators",
+      "scope": [
+        "keyword.operator.assignment"
+      ],
+      "settings": { "foreground": "#89B4FA" }
+    },
+    {
+      "name": "VerilogM - Bitwise/Arithmetic Operators",
+      "scope": [
+        "keyword.operator.bitwise",
+        "keyword.operator.arithmetic",
+        "keyword.operator.logical"
+      ],
+      "settings": { "foreground": "#89DCEB" }
+    },
+    {
+      "name": "VerilogM - Scope Operator (::)",
+      "scope": [
+        "keyword.operator.scope"
+      ],
+      "settings": { "foreground": "#A6E3A1" }
+    },
+    {
+      "name": "VerilogM - Punctuation",
+      "scope": [
+        "punctuation.terminator.statement",
+        "punctuation.separator.comma"
+      ],
+      "settings": { "foreground": "#6C7086" }
+    },
+    {
+      "name": "VerilogM - Variable Language (this/super/null)",
+      "scope": [
+        "variable.language"
+      ],
+      "settings": { "foreground": "#89B4FA", "fontStyle": "bold" }
+    }
+  ]
+}

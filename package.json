@@ -4,7 +4,7 @@
   "publisher": "rhoblack",
   "description": "A Verilog-HDL linter extension for VS Code",
   "author": "Rho JIN-HO(rhoblack)",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -53,6 +53,13 @@
         "language": "systemverilog",
         "scopeName": "source.systemverilog",
         "path": "./syntaxes/systemverilog.tmLanguage.json"
+      }
+    ],
+    "themes": [
+      {
+        "label": "Verilog Dark (Vibrant)",
+        "uiTheme": "vs-dark",
+        "path": "./themes/verilog-dark.json"
       }
     ],
     "snippets": [
