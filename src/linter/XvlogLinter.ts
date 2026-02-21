@@ -93,15 +93,28 @@ export default class XvlogLinter extends BaseLinter {
     if (doc.languageId === 'systemverilog') {
         args.push('--sv');
         if (this.uvmSupport) {
-            args.push('-L uvm');
+            this.outputChannel.appendLine(`[xvlog] UVM support is enabled. autoUvmPath: ${this.autoUvmPath}`);
+            args.push('-L', 'uvm');
             if (this.autoUvmPath) {
-                args.push(`-i "${this.autoUvmPath}"`);
+                args.push('-i', `"${this.autoUvmPath}"`);
                 
-                // CRITICAL: xvlog needs uvm_macros.svh to be visible in the compilation stream
-                // We add it to the command line before the actual file
-                const macrosPath = path.join(this.autoUvmPath, 'uvm_macros.svh');
-                if (require('fs').existsSync(macrosPath)) {
-                    args.push(`"${macrosPath}"`);
+                // Try multiple potential macro file names/locations
+                const macrosPaths = [
+                    path.join(this.autoUvmPath, 'src', 'uvm_macros.svh'),
+                    path.join(this.autoUvmPath, 'uvm_macros.svh')
+                ];
+                
+                let macroFound = false;
+                for (const mp of macrosPaths) {
+                    if (require('fs').existsSync(mp)) {
+                        args.push(`"${mp}"`);
+                        this.outputChannel.appendLine(`[xvlog] Added UVM macros from: ${mp}`);
+                        macroFound = true;
+                        break;
+                    }
+                }
+                if (!macroFound) {
+                    this.outputChannel.appendLine(`[xvlog] Warning: uvm_macros.svh not found in ${this.autoUvmPath}`);
                 }
             }
         }
