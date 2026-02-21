@@ -9,6 +9,9 @@
   ],
   "patterns": [
     {
+      "include": "#compiler-directives"
+    },
+    {
       "include": "#comments"
     },
     {
@@ -474,7 +477,7 @@
               "name": "punctuation.definition.directive.systemverilog"
             },
             "2": {
-              "name": "support.function.macro.uvm.systemverilog"
+              "name": "keyword.control.directive.uvm.systemverilog"
             }
           }
         },
@@ -494,6 +497,9 @@
     },
     "keywords": {
       "patterns": [
+        {
+          "include": "#compiler-directives"
+        },
         {
           "match": "[ \\t\\r\\n]*\\b(edge|negedge|posedge|cell|config|defparam|design|disable|endgenerate|endspecify|event|generate|ifnone|incdir|instance|liblist|library|noshowcancelled|pulsestyle_onevent|pulsestyle_ondetect|scalared|showcancelled|specify|specparam|use|vectored)\\b",
           "captures": {
@@ -875,7 +881,7 @@
         },
         {
           "match": "\\bUVM_(?:NONE|LOW|MEDIUM|HIGH|FULL|DEBUG|NO_ACTION|DISPLAY|LOG|COUNT|EXIT|CALL_HOOK|STOP|RM_RECORD|ALL_ON|COPY|NOCOPY|COMPARE|NOCOMPARE|PRINT|NOPRINT|RECORD|NORECORD|PACK|NOPACK|DEFAULT|ALL_ON|HEX|DEC|BIN|OCT|STRING|TIME|ENUM|REAL|EVENT|QUEUE|AA_INT_key|AA_STRING_key|AA_OBJECT_key|AA_OBJECT_STRING_key|ACTIVE|PASSIVE)\\b",
-          "name": "variable.other.constant.uvm.systemverilog"
+          "name": "variable.other.constant.systemverilog"
         },
         {
           "match": "\\b([A-Z][A-Z0-9_]*)\\b",
@@ -1088,7 +1094,7 @@
         },
         {
           "match": "[ \\t\\r\\n]*\\b(uvm_(?:root|transaction|component|monitor|driver|test|env|object|agent|sequence(?:_base|_item|_state)?|sequencer(?:_base)?|component_registry|analysis_(?:imp|port|export)|config_db|active_passive_enum|phase|verbosity|tlm_(?:analysis_fifo|fifo)|report_server|objection|recorder|domain|reg(?:_field|_block)?|bitstream_t|radix_enum|printer|packer|comparer|scope_stack|report_object|callback|factory|subscriber|scoreboard|mem|vreg|predict|void|bit|byte|shortint|int|longint|integer|time|genvar|shortreal|real|realtime|string|process|event))\\b",
-          "name": "support.class.uvm.systemverilog"
+          "name": "support.class.systemverilog"
         }
       ]
     },
