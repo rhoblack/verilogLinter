@@ -125,6 +125,7 @@ const PALETTE_4_LIGHT: TextMateRule[] = [
 export class HighlightManager implements vscode.Disposable {
     private disposables: vscode.Disposable[] = [];
     private outputChannel: vscode.OutputChannel;
+    private isApplying = false; // Guard against recursive calls
 
     constructor() {
         this.outputChannel = vscode.window.createOutputChannel('Verilog Highlight');
@@ -156,46 +157,55 @@ export class HighlightManager implements vscode.Disposable {
      * `editor.tokenColorCustomizations` at the global (User) scope.
      */
     async applyHighlight(): Promise<void> {
-        const config = vscode.workspace.getConfiguration('verilogLinter.highlight');
-        const mode: string = config.get<string>('colorMode', '16color');
-
-        if (mode === 'off') {
-            await this.clearHighlight();
-            this.outputChannel.appendLine('[HighlightManager] Highlight mode is OFF – cleared custom rules.');
-            return;
+        if (this.isApplying) {
+            return; // Prevent recursive call from our own config update
         }
+        this.isApplying = true;
 
-        const isDark = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark
-            || vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.HighContrast;
+        try {
+            const config = vscode.workspace.getConfiguration('verilogLinter.highlight');
+            const mode: string = config.get<string>('colorMode', '16color');
 
-        let palette: TextMateRule[];
-        let label: string;
+            if (mode === 'off') {
+                await this.clearHighlight();
+                this.outputChannel.appendLine('[HighlightManager] Highlight mode is OFF – cleared custom rules.');
+                return;
+            }
 
-        if (mode === '4color') {
-            palette = isDark ? PALETTE_4_DARK : PALETTE_4_LIGHT;
-            label = `4color-${isDark ? 'dark' : 'light'}`;
-        } else {
-            palette = isDark ? PALETTE_16_DARK : PALETTE_16_LIGHT;
-            label = `16color-${isDark ? 'dark' : 'light'}`;
+            const isDark = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark
+                || vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.HighContrast;
+
+            let palette: TextMateRule[];
+            let label: string;
+
+            if (mode === '4color') {
+                palette = isDark ? PALETTE_4_DARK : PALETTE_4_LIGHT;
+                label = `4color-${isDark ? 'dark' : 'light'}`;
+            } else {
+                palette = isDark ? PALETTE_16_DARK : PALETTE_16_LIGHT;
+                label = `16color-${isDark ? 'dark' : 'light'}`;
+            }
+
+            // Read existing customizations so we don't overwrite user's non-Verilog rules
+            const editorConfig = vscode.workspace.getConfiguration('editor');
+            const existing = editorConfig.get<Record<string, unknown>>('tokenColorCustomizations') || {};
+
+            // Merge: keep user's rules for other scopes, replace Verilog rules
+            const existingRules = (existing as any).textMateRules as TextMateRule[] | undefined;
+            const nonVerilogRules = (existingRules || []).filter(
+                (rule) => !this.isVerilogRule(rule)
+            );
+
+            const merged = {
+                ...existing,
+                textMateRules: [...nonVerilogRules, ...palette],
+            };
+
+            await editorConfig.update('tokenColorCustomizations', merged, vscode.ConfigurationTarget.Global);
+            this.outputChannel.appendLine(`[HighlightManager] Applied palette: ${label} (${palette.length} rules)`);
+        } finally {
+            this.isApplying = false;
         }
-
-        // Read existing customizations so we don't overwrite user's non-Verilog rules
-        const editorConfig = vscode.workspace.getConfiguration('editor');
-        const existing = editorConfig.get<Record<string, unknown>>('tokenColorCustomizations') || {};
-
-        // Merge: keep user's rules for other scopes, replace Verilog rules
-        const existingRules = (existing as any).textMateRules as TextMateRule[] | undefined;
-        const nonVerilogRules = (existingRules || []).filter(
-            (rule) => !this.isVerilogRule(rule)
-        );
-
-        const merged = {
-            ...existing,
-            textMateRules: [...nonVerilogRules, ...palette],
-        };
-
-        await editorConfig.update('tokenColorCustomizations', merged, vscode.ConfigurationTarget.Global);
-        this.outputChannel.appendLine(`[HighlightManager] Applied palette: ${label} (${palette.length} rules)`);
     }
 
     /**
