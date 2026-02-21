@@ -121,6 +121,36 @@
             },
             "default": [],
             "description": "Include paths for xvlog linting."
+          },
+          "verilogLinter.formatting.formatter": {
+            "type": "string",
+            "enum": [
+              "none",
+              "verible-verilog-format",
+              "istyle-verilog-formatter"
+            ],
+            "default": "none",
+            "description": "Select the Verilog/SystemVerilog document formatter."
+          },
+          "verilogLinter.formatting.verible.executable": {
+            "type": "string",
+            "default": "verible-verilog-format",
+            "description": "Absolute path to the verible-verilog-format executable (or 'verible-verilog-format' if in PATH)."
+          },
+          "verilogLinter.formatting.verible.arguments": {
+            "type": "string",
+            "default": "",
+            "description": "Add verible-verilog-format arguments here."
+          },
+          "verilogLinter.formatting.istyle.executable": {
+            "type": "string",
+            "default": "istyle-verilog-formatter",
+            "description": "Absolute path to the istyle-verilog-formatter executable (or 'istyle-verilog-formatter' if in PATH)."
+          },
+          "verilogLinter.formatting.istyle.arguments": {
+            "type": "string",
+            "default": "",
+            "description": "Add istyle-verilog-formatter arguments here."
           }
         }
       }
