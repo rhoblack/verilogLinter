@@ -4,7 +4,7 @@
   "publisher": "rhoblack",
   "description": "A Verilog-HDL linter extension for VS Code",
   "author": "Rho JIN-HO(rhoblack)",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -62,6 +62,207 @@
         "path": "./themes/verilog-dark.json"
       }
     ],
+    "configurationDefaults": {
+      "editor.tokenColorCustomizations": {
+        "textMateRules": [
+          {
+            "name": "VerilogM - module/interface/class/package",
+            "scope": [
+              "storage.type.module",
+              "storage.type.interface",
+              "storage.type.class",
+              "storage.type.package",
+              "storage.type.program",
+              "storage.type.udp"
+            ],
+            "settings": { "foreground": "#89DCEB", "fontStyle": "bold" }
+          },
+          {
+            "name": "VerilogM - function/task",
+            "scope": [
+              "storage.type.function",
+              "storage.type.task"
+            ],
+            "settings": { "foreground": "#89B4FA", "fontStyle": "bold" }
+          },
+          {
+            "name": "VerilogM - control keywords (if/else/always_ff/for)",
+            "scope": [
+              "keyword.control.verilog",
+              "keyword.control.systemverilog",
+              "keyword.control"
+            ],
+            "settings": { "foreground": "#F38BA8" }
+          },
+          {
+            "name": "VerilogM - begin/end/fork/join",
+            "scope": [
+              "keyword.control.block.systemverilog",
+              "keyword.control.block.verilog",
+              "keyword.other.block.verilog",
+              "keyword.other.block.systemverilog"
+            ],
+            "settings": { "foreground": "#CBA6F7" }
+          },
+          {
+            "name": "VerilogM - port direction (input/output/inout)",
+            "scope": [
+              "keyword.other.port.verilog",
+              "keyword.other.port.systemverilog"
+            ],
+            "settings": { "foreground": "#FAB387", "fontStyle": "bold" }
+          },
+          {
+            "name": "VerilogM - built-in types (logic/bit/wire)",
+            "scope": [
+              "storage.type.built-in.systemverilog",
+              "storage.type.built-in.verilog",
+              "support.type.verilog",
+              "support.type.systemverilog"
+            ],
+            "settings": { "foreground": "#74C7EC" }
+          },
+          {
+            "name": "VerilogM - storage modifier (rand/virtual/static)",
+            "scope": [
+              "storage.modifier.systemverilog",
+              "storage.modifier.verilog"
+            ],
+            "settings": { "foreground": "#F5C2E7" }
+          },
+          {
+            "name": "VerilogM - system tasks ($clog2/$display)",
+            "scope": [
+              "support.function.builtin.verilog",
+              "support.function.builtin.systemverilog",
+              "entity.name.function.call.system.verilog",
+              "entity.name.function.call.system.systemverilog"
+            ],
+            "settings": { "foreground": "#F9E2AF", "fontStyle": "bold" }
+          },
+          {
+            "name": "VerilogM - compiler directives (`timescale etc)",
+            "scope": [
+              "entity.name.function.preprocessor.verilog",
+              "entity.name.function.preprocessor.systemverilog",
+              "keyword.other.compiler-directive.verilog",
+              "keyword.other.compiler-directive.systemverilog"
+            ],
+            "settings": { "foreground": "#CBA6F7", "fontStyle": "italic" }
+          },
+          {
+            "name": "VerilogM - UVM classes",
+            "scope": ["support.class.uvm.systemverilog"],
+            "settings": { "foreground": "#A6E3A1" }
+          },
+          {
+            "name": "VerilogM - UVM functions",
+            "scope": ["support.function.uvm.systemverilog"],
+            "settings": { "foreground": "#94E2D5" }
+          },
+          {
+            "name": "VerilogM - numbers",
+            "scope": [
+              "constant.numeric.integer.verilog",
+              "constant.numeric.integer.systemverilog",
+              "constant.numeric.float.verilog",
+              "constant.numeric.float.systemverilog",
+              "constant.numeric.time.verilog",
+              "constant.numeric.time.systemverilog"
+            ],
+            "settings": { "foreground": "#B5CEA8" }
+          },
+          {
+            "name": "VerilogM - number size",
+            "scope": [
+              "constant.numeric.size.verilog",
+              "constant.numeric.size.systemverilog"
+            ],
+            "settings": { "foreground": "#F5C2E7" }
+          },
+          {
+            "name": "VerilogM - number base (h/b/d/o)",
+            "scope": [
+              "constant.numeric.base.verilog",
+              "constant.numeric.base.systemverilog"
+            ],
+            "settings": { "foreground": "#FAB387" }
+          },
+          {
+            "name": "VerilogM - number digits",
+            "scope": [
+              "constant.numeric.digit.verilog",
+              "constant.numeric.digit.systemverilog",
+              "constant.numeric.sized-integer.verilog",
+              "constant.numeric.sized-integer.systemverilog"
+            ],
+            "settings": { "foreground": "#B5CEA8" }
+          },
+          {
+            "name": "VerilogM - special ('0 '1 'x 'z)",
+            "scope": [
+              "constant.numeric.special.verilog",
+              "constant.numeric.special.systemverilog"
+            ],
+            "settings": { "foreground": "#F38BA8" }
+          },
+          {
+            "name": "VerilogM - UPPERCASE constants/parameters",
+            "scope": [
+              "constant.other.parameter.verilog",
+              "constant.other.parameter.systemverilog"
+            ],
+            "settings": { "foreground": "#EBA0AC" }
+          },
+          {
+            "name": "VerilogM - comparison operators",
+            "scope": [
+              "keyword.operator.comparison.verilog",
+              "keyword.operator.comparison.systemverilog"
+            ],
+            "settings": { "foreground": "#F38BA8" }
+          },
+          {
+            "name": "VerilogM - assignment operators",
+            "scope": [
+              "keyword.operator.assignment.verilog",
+              "keyword.operator.assignment.systemverilog"
+            ],
+            "settings": { "foreground": "#89B4FA" }
+          },
+          {
+            "name": "VerilogM - bitwise/arithmetic operators",
+            "scope": [
+              "keyword.operator.bitwise.verilog",
+              "keyword.operator.bitwise.systemverilog",
+              "keyword.operator.arithmetic.verilog",
+              "keyword.operator.arithmetic.systemverilog",
+              "keyword.operator.logical.verilog",
+              "keyword.operator.logical.systemverilog"
+            ],
+            "settings": { "foreground": "#89DCEB" }
+          },
+          {
+            "name": "VerilogM - strings",
+            "scope": [
+              "string.quoted.double.verilog",
+              "string.quoted.double.systemverilog"
+            ],
+            "settings": { "foreground": "#A6E3A1" }
+          },
+          {
+            "name": "VerilogM - comments",
+            "scope": [
+              "comment.block.verilog",
+              "comment.line.verilog",
+              "comment.block.systemverilog",
+              "comment.line.double-slash.systemverilog"
+            ],
+            "settings": { "foreground": "#585B70", "fontStyle": "italic" }
+          }
+        ]
+      }
+    },
     "snippets": [
       {
         "language": "verilog",
