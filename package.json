@@ -11,7 +11,8 @@
     "Programming Languages"
   ],
   "activationEvents": [
-    "onLanguage:verilog"
+    "onLanguage:verilog",
+    "onLanguage:systemverilog"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -38,6 +39,75 @@
           ".sv",
           ".svh"
         ]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "verilog",
+        "scopeName": "source.verilog",
+        "path": "./syntaxes/verilog.tmLanguage.json"
+      },
+      {
+        "language": "systemverilog",
+        "scopeName": "source.systemverilog",
+        "path": "./syntaxes/systemverilog.tmLanguage.json"
+      }
+    ],
+    "configuration": [
+      {
+        "title": "Verilog & SystemVerilog: Linting",
+        "properties": {
+          "verilogLinter.linting.linter": {
+            "type": "string",
+            "enum": [
+              "none",
+              "vcs",
+              "xcelium",
+              "xvlog"
+            ],
+            "default": "none",
+            "description": "Select the Verilog/SystemVerilog linter."
+          },
+          "verilogLinter.linting.vcs.arguments": {
+            "type": "string",
+            "default": "-lint=all -sverilog",
+            "description": "Add Synopsys VCS arguments here."
+          },
+          "verilogLinter.linting.vcs.includePath": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "description": "Include paths for VCS linting."
+          },
+          "verilogLinter.linting.xcelium.arguments": {
+            "type": "string",
+            "default": "-compile -sv",
+            "description": "Add Cadence Xcelium arguments here."
+          },
+          "verilogLinter.linting.xcelium.includePath": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "description": "Include paths for Xcelium linting."
+          },
+          "verilogLinter.linting.xvlog.arguments": {
+            "type": "string",
+            "default": "",
+            "description": "Add Xilinx Vivado xvlog arguments here."
+          },
+          "verilogLinter.linting.xvlog.includePath": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "description": "Include paths for xvlog linting."
+          }
+        }
       }
     ]
   },
