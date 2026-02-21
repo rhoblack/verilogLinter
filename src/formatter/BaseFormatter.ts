@@ -56,13 +56,24 @@ export default abstract class BaseFormatter implements vscode.DocumentFormatting
           if (_error) {
             this.outputChannel.appendLine(`[Format Error] ${_error.message}`);
             this.outputChannel.appendLine(`[Format Stderr] ${_stderr}`);
+            
             // If the command is simply not found, show user error and return empty edits.
-            if ((_error as any).code === 127 || _stderr.includes('command not found') || _error.message.includes('ENOENT')) {
-               vscode.window.showErrorMessage(`${this.name} formatter not found. Please set 'verilogLinter.formatting.${this.name}.executable' to the absolute path in Settings.`);
+            const isNotFound = (_error as any).code === 127 || 
+                               _stderr.includes('is not recognized') || 
+                               _stderr.includes('command not found') || 
+                               _error.message.includes('ENOENT');
+
+            if (isNotFound) {
+               let msg = `${this.name} formatter ('${expandedExe}') not found.`;
+               if (expandedExe === 'verible') {
+                 msg += " (Note: The correct executable name is usually 'verible-verilog-format')";
+               }
+               msg += " Please set the absolute path in Settings.";
+               vscode.window.showErrorMessage(msg);
                return resolve([]);
             }
             // For other formatting errors, maybe log and return empty to avoid corrupting file
-            vscode.window.showErrorMessage(`${this.name} formatter failed: ${_stderr.split('\\n')[0]}`);
+            vscode.window.showErrorMessage(`${this.name} formatter failed. Check 'Verilog Formatter Debug (${this.name})' output channel for details.`);
             return resolve([]);
           }
 

@@ -8,7 +8,7 @@ import { promisify } from 'util';
 const exec = promisify(child_process.exec);
 
 export class VeribleDownloader {
-    private static readonly REPO = 'google/verible';
+    private static readonly REPO = 'chipsalliance/verible';
     private static readonly BINARY_NAME = 'verible-verilog-format';
 
     constructor(private context: vscode.ExtensionContext) {}
