@@ -9,6 +9,7 @@ export default class XvlogLinter extends BaseLinter {
   private uvmSupport: boolean = false;
   private uvmIncludePath: string = '';
   private autoUvmPath: string | undefined;
+  private resolvedExePath: string | undefined;
 
   constructor(diagnosticCollection: vscode.DiagnosticCollection) {
     super('xvlog', diagnosticCollection);
@@ -50,11 +51,15 @@ export default class XvlogLinter extends BaseLinter {
         if (!path.isAbsolute(exePath)) {
             try {
                 const result = child.execSync(`where ${exePath}`, { encoding: 'utf8' });
-                exePath = result.split('\n')[0].trim();
+                exePath = result.split(/[\r\n]+/)[0].trim();
+                this.resolvedExePath = exePath;
+                this.outputChannel.appendLine(`[xvlog] Resolved executable to absolute path: ${exePath}`);
             } catch (e) {
                 this.outputChannel.appendLine(`[xvlog] 'where ${exePath}' failed, cannot auto-detect UVM path.`);
                 return;
             }
+        } else {
+            this.resolvedExePath = exePath;
         }
 
         if (exePath && path.isAbsolute(exePath)) {
@@ -131,7 +136,7 @@ export default class XvlogLinter extends BaseLinter {
     // Add the target file
     args.push(`"${doc.uri.fsPath}"`);
 
-    const exe = this.config.executable || 'xvlog';
+    const exe = this.resolvedExePath || this.config.executable || 'xvlog';
     const command = `"${exe}" ${args.join(' ')}`;
     const cwd = this.getWorkingDirectory(doc);
 
