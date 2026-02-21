@@ -14,6 +14,11 @@ export default class VeribleFormatter extends BaseFormatter {
 
   protected override getFormatArguments(baseArgs: string[], document: vscode.TextDocument, options: vscode.FormattingOptions): string[] {
     const args = [...baseArgs];
+    
+    // Verible specific indentation rules based on custom user setting
+    const indentSpaces = vscode.workspace.getConfiguration('verilogLinter.formatting').get<number>('indentationSpaces', 4);
+    args.push(`--indentation_spaces=${indentSpaces}`);
+
     // Write out straight to stdout by using '-'
     args.push('-');
     return args;

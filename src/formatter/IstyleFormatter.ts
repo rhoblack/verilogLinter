@@ -15,12 +15,9 @@ export default class IstyleFormatter extends BaseFormatter {
   protected override getFormatArguments(baseArgs: string[], document: vscode.TextDocument, options: vscode.FormattingOptions): string[] {
     const args = [...baseArgs];
     
-    // iStyle specific arguments based on vscode.FormattingOptions
-    if (options.insertSpaces) {
-      args.push(`--indent=space=${options.tabSize}`);
-    } else {
-      args.push('--indent=tab');
-    }
+    // iStyle specific arguments based on custom user setting
+    const indentSpaces = vscode.workspace.getConfiguration('verilogLinter.formatting').get<number>('indentationSpaces', 4);
+    args.push(`--indent=space=${indentSpaces}`);
 
     return args;
   }

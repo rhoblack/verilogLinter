@@ -151,6 +151,11 @@
             "type": "string",
             "default": "",
             "description": "Add istyle-verilog-formatter arguments here."
+          },
+          "verilogLinter.formatting.indentationSpaces": {
+            "type": "number",
+            "default": 4,
+            "description": "Number of spaces for indentation (used by Verible and iStyle)."
           }
         }
       }
