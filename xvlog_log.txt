@@ -1,0 +1,6 @@
+﻿INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/dev/antigravity/verilog_linter/uvm_test.sv" into library work
+INFO: [VRFC 10-311] analyzing module test
+WARNING: [VRFC 10-8895] design contains a SystemVerilog implicit generate region [D:/dev/antigravity/verilog_linter/uvm_test.sv:4]
+WARNING: [VRFC 10-8986] generate block is only allowed inside a loop or conditional generate in SystemVerilog mode [D:/dev/antigravity/verilog_linter/uvm_test.sv:4]
+ERROR: [VRFC 10-2971] 'uvm_report_enabled' is not a valid constant function call [D:/dev/antigravity/verilog_linter/uvm_test.sv:4]
+ERROR: [VRFC 10-8530] module 'test' is ignored due to previous errors [D:/dev/antigravity/verilog_linter/uvm_test.sv:3]

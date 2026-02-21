@@ -7,6 +7,7 @@ export default class XvlogLinter extends BaseLinter {
   private configuration!: vscode.WorkspaceConfiguration;
 
   private uvmSupport: boolean = false;
+  private autoUvmPath: string | undefined;
 
   constructor(diagnosticCollection: vscode.DiagnosticCollection) {
     super('xvlog', diagnosticCollection);
@@ -19,6 +20,43 @@ export default class XvlogLinter extends BaseLinter {
     this.uvmSupport = this.configuration.get<boolean>('uvmSupport', false);
     const paths = this.configuration.get<string[]>('includePath', []);
     this.config.includePath = this.resolveIncludePaths(paths);
+
+    if (this.uvmSupport) {
+        this.detectUvmPath();
+    }
+  }
+
+  private detectUvmPath() {
+    try {
+        let exePath = this.config.executable || 'xvlog';
+        if (!path.isAbsolute(exePath)) {
+            const result = child.execSync(`where ${exePath}`, { encoding: 'utf8' });
+            exePath = result.split('\n')[0].trim();
+        }
+
+        if (exePath && path.isAbsolute(exePath)) {
+            // Vivado structure: <VivadoRoot>/bin/xvlog.bat
+            // UVM path: <VivadoRoot>/data/system_verilog/uvm_1.2
+            const vivadoRoot = path.dirname(path.dirname(exePath));
+            
+            // Try different UVM path structures (Vivado versions vary)
+            const potentialPaths = [
+                path.join(vivadoRoot, 'data', 'system_verilog', 'uvm_1.2'),
+                path.join(vivadoRoot, 'data', 'systemverilog', 'uvm_1.2'),
+                path.join(vivadoRoot, 'data', 'system_verilog', 'uvm_1.1')
+            ];
+
+            for (const p of potentialPaths) {
+                if (require('fs').existsSync(p)) {
+                    this.autoUvmPath = p;
+                    this.outputChannel.appendLine(`[xvlog] Detected UVM path: ${p}`);
+                    break;
+                }
+            }
+        }
+    } catch (e) {
+        this.outputChannel.appendLine(`[xvlog] Failed to detect UVM path: ${e}`);
+    }
   }
 
   protected lint(doc: vscode.TextDocument) {
@@ -31,6 +69,9 @@ export default class XvlogLinter extends BaseLinter {
         args.push('--sv');
         if (this.uvmSupport) {
             args.push('-L uvm');
+            if (this.autoUvmPath) {
+                args.push(`-i "${this.autoUvmPath}"`);
+            }
         }
     }
 
