@@ -63,7 +63,12 @@
           "name": "variable.other.constant.verilog"
         },
         {
-          "match": "[0-9]*'[bBoOdDhH][a-fA-F0-9_xXzZ]+\\b",
+          "match": "([0-9]*)'([bBoOdDhH])([a-fA-F0-9_xXzZ]+)\\b",
+          "captures": {
+            "1": { "name": "constant.numeric.size.verilog" },
+            "2": { "name": "constant.numeric.base.verilog" },
+            "3": { "name": "constant.numeric.integer.verilog" }
+          },
           "name": "constant.numeric.sized_integer.verilog"
         },
         {
@@ -162,8 +167,20 @@
     "keywords": {
       "patterns": [
         {
-          "match": "\\b(always|assign|attribute|begin|case[xz]?|cmos|deassign|default|defparam|disable|edge|else|end(attribute|case|function|generate|module|primitive|specify|table|task)?|event|for|force|forever|fork|function|generate|genvar|highz(01)|if(none)?|initial|join|localparam|medium|module|large|macromodule|negedge|nmos|notif(01)|parameter|pmos|posedge|primitive|pull0|pull1|pulldown|pullup|rcmos|release|repeat|rnmos|rpmos|rtran|rtranif(01)|scalared|signed|small|specify|specparam|strength|strong0|strong1|table|task|tran|tranif(01)|unsigned|vectored|wait|weak(01)|while|wire)\\b",
+          "match": "\\b(always|assign|attribute|case[xz]?|cmos|deassign|default|defparam|disable|edge|else|endattribute|endcase|event|for|force|forever|generate|genvar|highz(01)|if(none)?|initial|localparam|medium|large|macromodule|negedge|nmos|notif(01)|parameter|pmos|posedge|primitive|pull0|pull1|pulldown|pullup|rcmos|release|repeat|rnmos|rpmos|rtran|rtranif(01)|scalared|signed|small|specify|specparam|strength|strong0|strong1|table|tran|tranif(01)|unsigned|vectored|wait|weak(01)|while|wire)\\b",
           "name": "keyword.control.verilog"
+        },
+        {
+          "match": "\\b(begin|end|fork|join)\\b",
+          "name": "keyword.other.block.verilog"
+        },
+        {
+          "match": "\\b(module|endmodule|task|endtask|function|endfunction|primitive|endprimitive)\\b",
+          "name": "storage.type.verilog"
+        },
+        {
+          "match": "\\b(input|output|inout|ref)\\b",
+          "name": "keyword.other.port.verilog"
         },
         {
           "match": "\\b(and|buf|bufif0|bufif1|nand|nor|not|or|xnor|xor|wand|wor|tri(01)?|tri(and|or|reg)|reg|wire|integer|time|real|realtime)\\b",

@@ -53,6 +53,26 @@
         "language": "systemverilog",
         "scopeName": "source.systemverilog",
         "path": "./syntaxes/systemverilog.tmLanguage.json"
+      },
+      {
+        "scopeName": "markdown.verilog.codeblock",
+        "path": "./syntaxes/verilog.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "source.verilog": "verilog"
+        }
+      },
+      {
+        "scopeName": "markdown.systemverilog.codeblock",
+        "path": "./syntaxes/systemverilog.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "source.systemverilog": "systemverilog"
+        }
       }
     ],
     "snippets": [
