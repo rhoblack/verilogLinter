@@ -112,9 +112,12 @@ export class VeribleDownloader {
             };
 
             const request = (targetUrl: string) => {
+                progress.report({ message: "Connecting to GitHub..." });
+                
                 https.get(targetUrl, options, (res) => {
                     if (res.statusCode === 302 || res.statusCode === 301) {
-                        request(res.headers.location!);
+                        const redirectUrl = res.headers.location!;
+                        request(redirectUrl);
                         return;
                     }
 
@@ -127,6 +130,8 @@ export class VeribleDownloader {
                     let downloadedSize = 0;
                     let lastPercent = 0;
                     const file = fs.createWriteStream(dest);
+
+                    progress.report({ message: `Starting download... (Total: ${(totalSize / 1024 / 1024).toFixed(1)}MB)` });
 
                     res.on('data', (chunk) => {
                         downloadedSize += chunk.length;
@@ -141,14 +146,21 @@ export class VeribleDownloader {
                                 });
                             }
                         } else {
+                            // If content-length is missing, just show MBs
                             progress.report({ message: `Downloading... ${(downloadedSize / 1024 / 1024).toFixed(1)}MB` });
                         }
                     });
 
                     res.pipe(file);
+                    
                     file.on('finish', () => {
                         file.close();
                         resolve();
+                    });
+
+                    file.on('error', (err) => {
+                        fs.unlinkSync(dest);
+                        reject(err);
                     });
                 }).on('error', (err) => {
                     if (fs.existsSync(dest)) fs.unlinkSync(dest);
