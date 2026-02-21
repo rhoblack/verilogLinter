@@ -16,6 +16,24 @@
     ],
     "description": "Basic Verilog module template"
   },
+  "Interface Template": {
+    "prefix": "interface",
+    "body": [
+      "interface ${1:if_name} (input bit ${2:clk});",
+      "    ${0}",
+      "endinterface"
+    ],
+    "description": "SystemVerilog interface template"
+  },
+  "Package Template": {
+    "prefix": "package",
+    "body": [
+      "package ${1:pkg_name};",
+      "    ${0}",
+      "endpackage"
+    ],
+    "description": "SystemVerilog package template"
+  },
   "Always Sequential": {
     "prefix": "always_ff",
     "body": [
@@ -38,6 +56,25 @@
     ],
     "description": "SystemVerilog combinational always block"
   },
+  "Typedef Enum": {
+    "prefix": "tenum",
+    "body": [
+      "typedef enum ${1:logic} {",
+      "    ${2:IDLE},",
+      "    ${3:BUSY}",
+      "} ${4:state_t};"
+    ],
+    "description": "Typedef enum template"
+  },
+  "Typedef Struct": {
+    "prefix": "tstruct",
+    "body": [
+      "typedef struct {",
+      "    ${1:logic} ${2:member};",
+      "} ${3:struct_t};"
+    ],
+    "description": "Typedef struct template"
+  },
   "Case block": {
     "prefix": "case",
     "body": [
@@ -52,31 +89,11 @@
     ],
     "description": "Case statement block"
   },
-  "Initial block": {
-    "prefix": "initial",
+  "Display Task": {
+    "prefix": "disp",
     "body": [
-      "initial begin",
-      "    ${0}",
-      "end"
+      "\\$display(\"${1:message}: %h\", ${1:signal});"
     ],
-    "description": "Initial block template"
-  },
-  "If-Else block": {
-    "prefix": "ifelse",
-    "body": [
-      "if (${1:condition}) begin",
-      "    ${2}",
-      "end else begin",
-      "    ${0}",
-      "end"
-    ],
-    "description": "If-else block template"
-  },
-  "Assign statement": {
-    "prefix": "assign",
-    "body": [
-      "assign ${1:out} = ${0:in};"
-    ],
-    "description": "Continuous assignment statement"
+    "description": "System task display"
   }
 }

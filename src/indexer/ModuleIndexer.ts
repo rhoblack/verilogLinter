@@ -9,14 +9,34 @@ export interface ModuleInfo {
     uri: vscode.Uri;
 }
 
+export interface PackageInfo {
+    name: string;
+    members: string[];
+    uri: vscode.Uri;
+}
+
+export interface InterfaceInfo {
+    name: string;
+    ports: string[];
+    uri: vscode.Uri;
+}
+
+export interface MacroInfo {
+    name: string;
+    uri: vscode.Uri;
+}
+
 export class ModuleIndexer {
     private moduleCache: Map<string, ModuleInfo> = new Map();
+    private packageCache: Map<string, PackageInfo> = new Map();
+    private interfaceCache: Map<string, InterfaceInfo> = new Map();
+    private macroCache: Map<string, MacroInfo> = new Map();
     private watcher: vscode.FileSystemWatcher | undefined;
 
     constructor() {}
 
     public async scanWorkspace() {
-        const uris = await vscode.workspace.findFiles('**/*.{v,sv}');
+        const uris = await vscode.workspace.findFiles('**/*.{v,sv,vh,svh}');
         for (const uri of uris) {
             await this.indexFile(uri);
         }
@@ -24,10 +44,25 @@ export class ModuleIndexer {
     }
 
     private setupWatcher() {
-        this.watcher = vscode.workspace.createFileSystemWatcher('**/*.{v,sv}');
+        this.watcher = vscode.workspace.createFileSystemWatcher('**/*.{v,sv,vh,svh}');
         this.watcher.onDidChange(uri => this.indexFile(uri));
         this.watcher.onDidCreate(uri => this.indexFile(uri));
-        this.watcher.onDidDelete(uri => this.moduleCache.delete(uri.fsPath));
+        this.watcher.onDidDelete(uri => {
+            this.removeFromCache(uri.fsPath);
+        });
+    }
+
+    private removeFromCache(fsPath: string) {
+        // Simple cleanup - in a real app, you'd track which key came from which file better
+        const removeByUri = (cache: Map<string, any>) => {
+            for (const [key, info] of cache.entries()) {
+                if (info.uri.fsPath === fsPath) cache.delete(key);
+            }
+        };
+        removeByUri(this.moduleCache);
+        removeByUri(this.packageCache);
+        removeByUri(this.interfaceCache);
+        removeByUri(this.macroCache);
     }
 
     public async indexFile(uri: vscode.Uri) {
@@ -41,26 +76,50 @@ export class ModuleIndexer {
     }
 
     private extractModules(text: string, uri: vscode.Uri) {
-        // Simple regex to find module definitions and their ports/params
-        // This is a basic implementation and can be refined later
-        const moduleRegex = /module\s+(\w+)\s*(?:#\s*\(([\s\S]*?)\))?\s*(?:\(([\s\S]*?)\))?\s*;/g;
+        // 1. Extract Modules
+        const moduleRegex = /\bmodule\s+(\w+)\s*(?:#\s*\(([\s\S]*?)\))?\s*(?:\(([\s\S]*?)\))?\s*;/g;
         let match;
-
         while ((match = moduleRegex.exec(text)) !== null) {
-            const moduleName = match[1];
-            const paramText = match[2] || '';
-            const portText = match[3] || '';
-
-            const params = this.parseParams(paramText);
-            const ports = this.parsePorts(portText);
-
-            this.moduleCache.set(moduleName, {
-                name: moduleName,
-                ports,
-                params,
+            this.moduleCache.set(match[1], {
+                name: match[1],
+                ports: this.parsePorts(match[3] || ''),
+                params: this.parseParams(match[2] || ''),
                 uri
             });
         }
+
+        // 2. Extract Packages
+        const packageRegex = /\bpackage\s+(\w+)\s*;([\s\S]*?)endpackage/g;
+        while ((match = packageRegex.exec(text)) !== null) {
+            const members = this.extractPackageMembers(match[2]);
+            this.packageCache.set(match[1], { name: match[1], members, uri });
+        }
+
+        // 3. Extract Interfaces
+        const interfaceRegex = /\binterface\s+(\w+)\s*(?:\(([\s\S]*?)\))?\s*;/g;
+        while ((match = interfaceRegex.exec(text)) !== null) {
+            this.interfaceCache.set(match[1], {
+                name: match[1],
+                ports: this.parsePorts(match[2] || ''),
+                uri
+            });
+        }
+
+        // 4. Extract Macros
+        const macroRegex = /`define\s+(\w+)/g;
+        while ((match = macroRegex.exec(text)) !== null) {
+            this.macroCache.set(match[1], { name: match[1], uri });
+        }
+    }
+
+    private extractPackageMembers(text: string): string[] {
+        const members: string[] = [];
+        const memberRegex = /\b(function|task|typedef|localparam|parameter)\s+(?:\w+\s+)?(\w+)/g;
+        let match;
+        while ((match = memberRegex.exec(text)) !== null) {
+            members.push(match[2]);
+        }
+        return members;
     }
 
     private parseParams(text: string): string[] {
@@ -85,6 +144,22 @@ export class ModuleIndexer {
 
     public getModules(): ModuleInfo[] {
         return Array.from(this.moduleCache.values());
+    }
+
+    public getPackages(): PackageInfo[] {
+        return Array.from(this.packageCache.values());
+    }
+
+    public getInterfaces(): InterfaceInfo[] {
+        return Array.from(this.interfaceCache.values());
+    }
+
+    public getMacros(): MacroInfo[] {
+        return Array.from(this.macroCache.values());
+    }
+
+    public getPackage(name: string): PackageInfo | undefined {
+        return this.packageCache.get(name);
     }
 
     public getModule(name: string): ModuleInfo | undefined {
