@@ -15,7 +15,7 @@ export default class FormatManager {
     { language: 'systemverilog', scheme: 'vscode-remote' }
   ];
 
-  constructor() {
+  constructor(private context: vscode.ExtensionContext) {
     this.subscriptions = [];
     vscode.workspace.onDidChangeConfiguration(this.configFormatter, this, this.subscriptions);
     this.configFormatter();
@@ -43,7 +43,7 @@ export default class FormatManager {
     }
 
     if (formatterName === 'verible-verilog-format') {
-      this.formatter = new VeribleFormatter();
+      this.formatter = new VeribleFormatter(this.context);
     } else if (formatterName === 'istyle-verilog-formatter') {
       this.formatter = new IstyleFormatter();
     }

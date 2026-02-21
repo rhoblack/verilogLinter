@@ -1,14 +1,33 @@
 import * as vscode from 'vscode';
 import BaseFormatter from './BaseFormatter';
 
+import { VeribleDownloader } from '../downloader/VeribleDownloader';
+
 export default class VeribleFormatter extends BaseFormatter {
-  constructor() {
+  private downloader: VeribleDownloader;
+
+  constructor(context: vscode.ExtensionContext) {
     super('verible');
+    this.downloader = new VeribleDownloader(context);
+    this.updateConfig();
   }
 
-  protected override updateConfig() {
+  protected override async updateConfig() {
     const configuration = vscode.workspace.getConfiguration('verilogLinter.formatting.verible');
-    this.config.executable = configuration.get<string>('executable', 'verible-verilog-format');
+    let exe = configuration.get<string>('executable', 'verible-verilog-format');
+    const autoDownload = configuration.get<boolean>('autoDownload', true);
+
+    if (autoDownload && (exe === 'verible-verilog-format' || !exe)) {
+        const localPath = this.downloader.getLocalBinaryPath();
+        if (localPath) {
+            exe = localPath;
+        } else {
+            // Trigger download if not found and autoDownload is on
+            exe = await this.downloader.downloadAndExtract() || exe;
+        }
+    }
+
+    this.config.executable = exe;
     this.config.arguments = configuration.get<string>('arguments', '');
   }
 

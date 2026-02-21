@@ -149,6 +149,11 @@
             "default": "verible-verilog-format",
             "description": "Absolute path to the verible-verilog-format executable (or 'verible-verilog-format' if in PATH)."
           },
+          "verilogLinter.formatting.verible.autoDownload": {
+            "type": "boolean",
+            "default": true,
+            "description": "Automatically download Verible binary if not found."
+          },
           "verilogLinter.formatting.verible.arguments": {
             "type": "string",
             "default": "",

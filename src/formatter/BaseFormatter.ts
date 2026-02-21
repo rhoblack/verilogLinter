@@ -30,7 +30,7 @@ export default abstract class BaseFormatter implements vscode.DocumentFormatting
     this.updateConfig();
   }
 
-  protected abstract updateConfig(): void;
+  protected abstract updateConfig(): Promise<void> | void;
 
   public provideDocumentFormattingEdits(
     document: vscode.TextDocument,

@@ -24,6 +24,8 @@ Synopsys VCS, Cadence Xcelium, Xilinx Vivado(xvlog)와 같은 상용 컴파일�
 - **지원하는 포매터 엔진:**
   - `verible-verilog-format` (Google Verible - **강력 추천**)
   - `istyle-verilog-formatter`
+- **Advanced Snippets**: 테스트벤치 템플릿 등 50여 개의 전문 스니펫 제공.
+- **Auto-Downloader**: Verible 포매터를 OS에 맞춰 자동 설치 (Windows/Linux 지원).
 - **동적 들여쓰기 옵션**: 설정에서 원하는 들여쓰기 칸 수(`Indentation Spaces`)를 4칸, 2칸 등으로 자유롭게 지정할 수 있습니다.
 
 ### 3. 🎨 구문 강조 (Syntax Highlighting)

@@ -15,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
     lintManager = new LintManager();
     context.subscriptions.push(lintManager);
 
-    formatManager = new FormatManager();
+    formatManager = new FormatManager(context);
     context.subscriptions.push(formatManager);
 
     // Register Hover Provider
