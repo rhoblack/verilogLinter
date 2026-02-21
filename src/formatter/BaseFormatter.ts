@@ -17,6 +17,7 @@ export default abstract class BaseFormatter implements vscode.DocumentFormatting
     executable: '',
     arguments: '',
   };
+  protected readyPromise: Promise<void>;
 
   constructor(name: string) {
     this.name = name;
@@ -24,11 +25,11 @@ export default abstract class BaseFormatter implements vscode.DocumentFormatting
 
     this.configListener = vscode.workspace.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration(`verilogLinter.formatting.${name}`)) {
-        this.updateConfig();
+        this.readyPromise = Promise.resolve(this.updateConfig());
       }
     });
 
-    this.updateConfig();
+    this.readyPromise = Promise.resolve(this.updateConfig());
   }
 
   protected abstract updateConfig(): Promise<void> | void;
@@ -38,7 +39,9 @@ export default abstract class BaseFormatter implements vscode.DocumentFormatting
     options: vscode.FormattingOptions,
     token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.TextEdit[]> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      await this.readyPromise;
+      
       const exe = this.config.executable || this.name;
       const expandedExe = expandEnvironmentVariables(exe);
       let args = this.config.arguments ? this.config.arguments.split(' ') : [];
@@ -65,15 +68,20 @@ export default abstract class BaseFormatter implements vscode.DocumentFormatting
 
             if (isNotFound) {
                let msg = `${this.name} formatter ('${expandedExe}') not found.`;
-               if (expandedExe === 'verible') {
-                 msg += " (Note: The correct executable name is usually 'verible-verilog-format')";
+               if (expandedExe === 'verible' || expandedExe === 'verible-verilog-format') {
+                 msg += " Please check your settings or ensure it is installed.";
                }
                msg += " Please set the absolute path in Settings.";
                vscode.window.showErrorMessage(msg);
                return resolve([]);
             }
-            // For other formatting errors, maybe log and return empty to avoid corrupting file
-            vscode.window.showErrorMessage(`${this.name} formatter failed. Check 'Verilog Formatter Debug (${this.name})' output channel for details.`);
+            // For other formatting errors (like syntax errors), don't show a popup if we got no output
+            // This prevents annoying popups while typing/saving incomplete code.
+            if (!stdout) {
+                this.outputChannel.appendLine(`[Format Error] Formatter exited with error and no output. This is likely a syntax error in the source file.`);
+            } else {
+                vscode.window.showErrorMessage(`${this.name} formatter failed. Check 'Verilog Formatter Debug (${this.name})' output channel for details.`);
+            }
             return resolve([]);
           }
 
