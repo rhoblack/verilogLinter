@@ -55,6 +55,16 @@
         "path": "./syntaxes/systemverilog.tmLanguage.json"
       }
     ],
+    "snippets": [
+      {
+        "language": "verilog",
+        "path": "./snippets/verilog.json"
+      },
+      {
+        "language": "systemverilog",
+        "path": "./snippets/verilog.json"
+      }
+    ],
     "configuration": [
       {
         "title": "Verilog & SystemVerilog: Linting",

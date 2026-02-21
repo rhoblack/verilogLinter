@@ -1,0 +1,82 @@
+{
+  "Module Template": {
+    "prefix": "module",
+    "body": [
+      "module ${1:module_name} #(",
+      "    parameter ${2:PARAM} = ${3:VALUE}",
+      ") (",
+      "    input  ${4:clk},",
+      "    input  ${5:rst_n},",
+      "    output ${6:done}",
+      ");",
+      "",
+      "    ${0}",
+      "",
+      "endmodule"
+    ],
+    "description": "Basic Verilog module template"
+  },
+  "Always Sequential": {
+    "prefix": "always_ff",
+    "body": [
+      "always_ff @(posedge ${1:clk} or negedge ${2:rst_n}) begin",
+      "    if (!${2:rst_n}) begin",
+      "        ${3:signal} <= ${4:0};",
+      "    end else begin",
+      "        ${3:signal} <= ${0};",
+      "    end",
+      "end"
+    ],
+    "description": "SystemVerilog sequential always block"
+  },
+  "Always Combinational": {
+    "prefix": "always_comb",
+    "body": [
+      "always_comb begin",
+      "    ${0}",
+      "end"
+    ],
+    "description": "SystemVerilog combinational always block"
+  },
+  "Case block": {
+    "prefix": "case",
+    "body": [
+      "case (${1:signal})",
+      "    ${2:VALUE1}: begin",
+      "        ${3}",
+      "    end",
+      "    default: begin",
+      "        ${0}",
+      "    end",
+      "endcase"
+    ],
+    "description": "Case statement block"
+  },
+  "Initial block": {
+    "prefix": "initial",
+    "body": [
+      "initial begin",
+      "    ${0}",
+      "end"
+    ],
+    "description": "Initial block template"
+  },
+  "If-Else block": {
+    "prefix": "ifelse",
+    "body": [
+      "if (${1:condition}) begin",
+      "    ${2}",
+      "end else begin",
+      "    ${0}",
+      "end"
+    ],
+    "description": "If-else block template"
+  },
+  "Assign statement": {
+    "prefix": "assign",
+    "body": [
+      "assign ${1:out} = ${0:in};"
+    ],
+    "description": "Continuous assignment statement"
+  }
+}

@@ -2,9 +2,12 @@ import * as vscode from 'vscode';
 import LintManager from './linter/LintManager';
 import FormatManager from './formatter/FormatManager';
 import VerilogHoverProvider from './hover/HoverProvider';
+import { ModuleIndexer } from './indexer/ModuleIndexer';
+import { VerilogCompletionProvider } from './completion/VerilogCompletionProvider';
 
 let lintManager: LintManager;
 let formatManager: FormatManager;
+let moduleIndexer: ModuleIndexer;
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "verilog-linter" is now active!');
@@ -22,6 +25,18 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.languages.registerHoverProvider('systemverilog', hoverProvider)
     );
 
+    // Initialize and Scan Workspace
+    moduleIndexer = new ModuleIndexer();
+    moduleIndexer.scanWorkspace();
+    context.subscriptions.push(moduleIndexer);
+
+    // Register Completion Provider
+    const completionProvider = new VerilogCompletionProvider(moduleIndexer);
+    context.subscriptions.push(
+        vscode.languages.registerCompletionItemProvider('verilog', completionProvider, '$', '`'),
+        vscode.languages.registerCompletionItemProvider('systemverilog', completionProvider, '$', '`')
+    );
+
     let disposable = vscode.commands.registerCommand('verilog-linter.helloWorld', () => {
         vscode.window.showInformationMessage('Hello World from Verilog-HDL Linter!');
     });
@@ -35,5 +50,8 @@ export function deactivate() {
     }
     if (formatManager) {
         formatManager.dispose();
+    }
+    if (moduleIndexer) {
+        moduleIndexer.dispose();
     }
 }
