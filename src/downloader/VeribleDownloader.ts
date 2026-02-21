@@ -42,6 +42,7 @@ export class VeribleDownloader {
             cancellable: false
         }, async (progress) => {
             try {
+                progress.report({ message: "Checking for latest version..." });
                 const assetUrl = await this.getLatestAssetUrl();
                 if (!assetUrl) throw new Error("Could not find suitable Verible asset for your OS.");
 
@@ -81,26 +82,40 @@ export class VeribleDownloader {
                 headers: { 'User-Agent': 'vscode-verilog-linter' }
             };
 
-            https.get(options, (res) => {
+            const request = https.get(options, (res) => {
                 let data = '';
                 res.on('data', (chunk) => data += chunk);
                 res.on('end', () => {
-                    const release = JSON.parse(data);
-                    const platform = process.platform;
-                    let pattern = '';
-
-                    if (platform === 'win32') {
-                        pattern = 'win64.zip';
-                    } else if (platform === 'linux') {
-                        pattern = 'linux-static-x86_64.tar.gz';
-                    } else if (platform === 'darwin') {
-                        pattern = 'macOS.tar.gz';
+                    if (res.statusCode !== 200) {
+                        reject(new Error(`GitHub API returned ${res.statusCode}`));
+                        return;
                     }
+                    try {
+                        const release = JSON.parse(data);
+                        const platform = process.platform;
+                        let pattern = '';
 
-                    const asset = release.assets.find((a: any) => a.name.endsWith(pattern));
-                    resolve(asset?.browser_download_url);
+                        if (platform === 'win32') {
+                            pattern = 'win64.zip';
+                        } else if (platform === 'linux') {
+                            pattern = 'linux-static-x86_64.tar.gz';
+                        } else if (platform === 'darwin') {
+                            pattern = 'macOS.tar.gz';
+                        }
+
+                        const asset = release.assets.find((a: any) => a.name.endsWith(pattern));
+                        resolve(asset?.browser_download_url);
+                    } catch (e) {
+                        reject(new Error("Failed to parse GitHub response"));
+                    }
                 });
-            }).on('error', reject);
+            });
+            
+            request.on('error', reject);
+            request.setTimeout(15000, () => {
+                request.destroy();
+                reject(new Error("GitHub API request timed out (15s)"));
+            });
         });
     }
 
