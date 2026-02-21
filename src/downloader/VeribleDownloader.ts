@@ -74,22 +74,28 @@ export class VeribleDownloader {
         });
     }
 
-    private async getLatestAssetUrl(): Promise<string | undefined> {
+    private async getLatestAssetUrl(url?: string): Promise<string | undefined> {
         return new Promise((resolve, reject) => {
-            const options = {
-                hostname: 'api.github.com',
-                path: `/repos/${VeribleDownloader.REPO}/releases/latest`,
-                headers: { 'User-Agent': 'vscode-verilog-linter' }
+            const requestUrl = url || `https://api.github.com/repos/${VeribleDownloader.REPO}/releases/latest`;
+            const options: https.RequestOptions = {
+                headers: { 'User-Agent': 'vscode-verilog-linter' },
+                timeout: 15000
             };
 
-            const request = https.get(options, (res) => {
+            const request = https.get(requestUrl, options, (res) => {
+                if (res.statusCode === 301 || res.statusCode === 302) {
+                    resolve(this.getLatestAssetUrl(res.headers.location));
+                    return;
+                }
+
+                if (res.statusCode !== 200) {
+                    reject(new Error(`GitHub API returned ${res.statusCode}`));
+                    return;
+                }
+
                 let data = '';
                 res.on('data', (chunk) => data += chunk);
                 res.on('end', () => {
-                    if (res.statusCode !== 200) {
-                        reject(new Error(`GitHub API returned ${res.statusCode}`));
-                        return;
-                    }
                     try {
                         const release = JSON.parse(data);
                         const platform = process.platform;
@@ -112,7 +118,7 @@ export class VeribleDownloader {
             });
             
             request.on('error', reject);
-            request.setTimeout(15000, () => {
+            request.on('timeout', () => {
                 request.destroy();
                 reject(new Error("GitHub API request timed out (15s)"));
             });
