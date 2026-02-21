@@ -11,7 +11,8 @@ export default class XceliumLinter extends BaseLinter {
   }
 
   protected override updateConfig() {
-    this.configuration = vscode.workspace.getConfiguration('verilog.linting.xcelium');
+    this.configuration = vscode.workspace.getConfiguration('verilogLinter.linting.xcelium');
+    this.config.executable = this.configuration.get<string>('executable', 'xrun');
     this.config.arguments = this.configuration.get<string>('arguments', '-compile -sv');
     const paths = this.configuration.get<string[]>('includePath', []);
     this.config.includePath = this.resolveIncludePaths(paths);
@@ -29,29 +30,44 @@ export default class XceliumLinter extends BaseLinter {
     // Add the target file
     args.push(`"${doc.uri.fsPath}"`);
 
-    const command = `xrun ${args.join(' ')}`;
+    const exe = this.config.executable || 'xrun';
+    const command = `${exe} ${args.join(' ')}`;
     const cwd = this.getWorkingDirectory(doc);
 
     child.exec(
       command,
       { cwd },
       (_error: child.ExecException | null, stdout: string, _stderr: string) => {
-        const diagMap = new Map<string, vscode.Diagnostic[]>();
+        if (_error && ((_error as any).code === 127 || _stderr.includes('command not found') || _error.message.includes('ENOENT'))) {
+          vscode.window.showErrorMessage(`Xcelium linter ('${exe}') not found. Please set 'verilogLinter.linting.xcelium.executable' to the absolute path in Settings.`);
+          return;
+        }
+
+        const diagMap = new Map<string, { uri: vscode.Uri; diags: vscode.Diagnostic[] }>();
         // Cadence messages typically look like:
         // xmvlog: *E,ERR (file.v, 12|34): syntax error.
         // xmvlog: *W,WARN (file.v, 12|34): warning MSG.
 
         const regex = /xmvlog:\s*\*([EW]),.*? \((.*?),(\d+)\|(\d+)\):\s*(.*)/g;
         let match;
+        
+        const output = `${stdout}\n${_stderr}`;
 
-        while ((match = regex.exec(stdout)) !== null) {
+        while ((match = regex.exec(output)) !== null) {
           const kind = match[1]; // 'E' or 'W'
           const fileRaw = match[2];
           const lineNum = Number(match[3]);
           const message = match[5].trim();
           
           const severity = (kind === 'E') ? vscode.DiagnosticSeverity.Error : vscode.DiagnosticSeverity.Warning;
-          const fsPath = path.isAbsolute(fileRaw) ? fileRaw : path.resolve(cwd, fileRaw);
+          
+          let fileUri: vscode.Uri;
+          if (doc.uri.fsPath === fileRaw || doc.uri.fsPath.endsWith(fileRaw)) {
+            fileUri = doc.uri;
+          } else {
+            const fsPath = path.isAbsolute(fileRaw) ? fileRaw : path.resolve(cwd, fileRaw);
+            fileUri = doc.uri.with({ path: fsPath });
+          }
 
           const rangeLine = Math.max(0, lineNum - 1);
           let startCol = 0;
@@ -68,14 +84,16 @@ export default class XceliumLinter extends BaseLinter {
           const d = new vscode.Diagnostic(range, message, severity);
           d.source = 'xcelium';
 
-          const arr = diagMap.get(fsPath) ?? [];
-          arr.push(d);
-          diagMap.set(fsPath, arr);
+          const uriStr = fileUri.toString();
+          if (!diagMap.has(uriStr)) {
+            diagMap.set(uriStr, { uri: fileUri, diags: [] });
+          }
+          diagMap.get(uriStr)!.diags.push(d);
         }
 
         this.diagnosticCollection.clear();
-        for (const [fsPath, diags] of diagMap) {
-          this.diagnosticCollection.set(vscode.Uri.file(fsPath), diags);
+        for (const entry of diagMap.values()) {
+          this.diagnosticCollection.set(entry.uri, entry.diags);
         }
       }
     );

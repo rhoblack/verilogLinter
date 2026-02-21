@@ -24,17 +24,23 @@ export default class LintManager {
     vscode.workspace.textDocuments.forEach(this.lint, this);
   }
 
-  private configLinter() {
+  private configLinter(e?: vscode.ConfigurationChangeEvent) {
+    if (e && !e.affectsConfiguration('verilogLinter.linting')) {
+      return;
+    }
+
     const linterName = vscode.workspace.getConfiguration('verilogLinter.linting').get<string>('linter', 'none');
 
+    // If linter hasn't changed its core type, just let it update its own config. No need to nuke the diagnostics.
     if (this.linter !== null) {
       if (this.linter.name === linterName) {
-        return; // No change
+        return;
       }
+      this.linter.dispose();
+      this.linter = null;
     }
 
     this.diagnosticCollection.clear();
-    this.linter = null;
 
     if (linterName === 'vcs') {
       this.linter = new VcsLinter(this.diagnosticCollection);
@@ -61,6 +67,9 @@ export default class LintManager {
   }
 
   public dispose() {
+    if (this.linter) {
+      this.linter.dispose();
+    }
     this.diagnosticCollection.clear();
     this.diagnosticCollection.dispose();
     this.subscriptions.forEach((s) => s.dispose());

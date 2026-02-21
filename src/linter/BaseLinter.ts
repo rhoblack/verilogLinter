@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 
 export interface LinterConfig {
+  executable: string;
   arguments: string;
   includePath: string[];
 }
@@ -9,7 +10,11 @@ export interface LinterConfig {
 export default abstract class BaseLinter {
   protected diagnosticCollection: vscode.DiagnosticCollection;
   name: string;
+  protected outputChannel: vscode.OutputChannel;
+  protected configListener: vscode.Disposable;
+
   protected config: LinterConfig = {
+    executable: '',
     arguments: '',
     includePath: [],
   };
@@ -17,12 +22,15 @@ export default abstract class BaseLinter {
   constructor(name: string, diagnosticCollection: vscode.DiagnosticCollection) {
     this.diagnosticCollection = diagnosticCollection;
     this.name = name;
+    this.outputChannel = vscode.window.createOutputChannel(`Verilog Linter Debug (${name})`);
 
-    vscode.workspace.onDidChangeConfiguration(() => {
-      this.updateConfig();
+    this.configListener = vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(`verilogLinter.linting.${name}`)) {
+        this.updateConfig();
+      }
     });
-    // First time setup
-    setTimeout(() => this.updateConfig(), 0);
+    // First time setup - MUST be synchronous so `lint()` uses correct values immediately
+    this.updateConfig();
   }
 
   protected abstract updateConfig(): void;
@@ -51,6 +59,10 @@ export default abstract class BaseLinter {
 
   public removeFileDiagnostics(doc: vscode.TextDocument) {
     this.diagnosticCollection.delete(doc.uri);
+  }
+
+  public dispose() {
+    this.configListener.dispose();
   }
 
   protected abstract lint(doc: vscode.TextDocument): void;

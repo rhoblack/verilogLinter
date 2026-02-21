@@ -12,6 +12,7 @@ export default class XvlogLinter extends BaseLinter {
 
   protected override updateConfig() {
     this.configuration = vscode.workspace.getConfiguration('verilogLinter.linting.xvlog');
+    this.config.executable = this.configuration.get<string>('executable', 'xvlog');
     this.config.arguments = this.configuration.get<string>('arguments', '');
     const paths = this.configuration.get<string[]>('includePath', []);
     this.config.includePath = this.resolveIncludePaths(paths);
@@ -36,29 +37,43 @@ export default class XvlogLinter extends BaseLinter {
     // Add the target file
     args.push(`"${doc.uri.fsPath}"`);
 
-    const command = `xvlog ${args.join(' ')}`;
+    const exe = this.config.executable || 'xvlog';
+    const command = `${exe} ${args.join(' ')}`;
     const cwd = this.getWorkingDirectory(doc);
 
     child.exec(
       command,
       { cwd },
       (_error: child.ExecException | null, stdout: string, _stderr: string) => {
-        const diagMap = new Map<string, vscode.Diagnostic[]>();
+        if (_error && ((_error as any).code === 127 || _stderr.includes('command not found') || _error.message.includes('ENOENT'))) {
+          vscode.window.showErrorMessage(`Vivado xvlog ('${exe}') not found. Please set 'verilogLinter.linting.xvlog.executable' to the absolute path in Settings.`);
+          return;
+        }
+
+        const diagMap = new Map<string, { uri: vscode.Uri; diags: vscode.Diagnostic[] }>();
         // Xilinx xvlog messages typically look like:
         // ERROR: [VRFC 10-2263] port connection required for port 'foo' [/path/to/file.v:12]
         // WARNING: [VRFC 10-2342] some warning [/path/to/file.v:34]
 
         const regex = /(ERROR|WARNING):\s*\[(.*?)\]\s*(.*?)\s*\[(.*):(\d+)\]/g;
         let match;
+        
+        const output = `${stdout}\n${_stderr}`;
 
-        while ((match = regex.exec(stdout)) !== null) {
+        while ((match = regex.exec(output)) !== null) {
           const kind = match[1]; // 'ERROR' or 'WARNING'
           const fileRaw = match[4];
           const lineNum = Number(match[5]);
           const message = `[${match[2]}] ${match[3].trim()}`;
           
           const severity = (kind === 'ERROR') ? vscode.DiagnosticSeverity.Error : vscode.DiagnosticSeverity.Warning;
-          const fsPath = path.isAbsolute(fileRaw) ? fileRaw : path.resolve(cwd, fileRaw);
+          let fileUri: vscode.Uri;
+          if (doc.uri.fsPath === fileRaw || doc.uri.fsPath.endsWith(fileRaw)) {
+            fileUri = doc.uri;
+          } else {
+            const fsPath = path.isAbsolute(fileRaw) ? fileRaw : path.resolve(cwd, fileRaw);
+            fileUri = doc.uri.with({ path: fsPath });
+          }
 
           const rangeLine = Math.max(0, lineNum - 1);
           let startCol = 0;
@@ -85,14 +100,16 @@ export default class XvlogLinter extends BaseLinter {
           const d = new vscode.Diagnostic(range, message, severity);
           d.source = 'xvlog';
 
-          const arr = diagMap.get(fsPath) ?? [];
-          arr.push(d);
-          diagMap.set(fsPath, arr);
+          const uriStr = fileUri.toString();
+          if (!diagMap.has(uriStr)) {
+            diagMap.set(uriStr, { uri: fileUri, diags: [] });
+          }
+          diagMap.get(uriStr)!.diags.push(d);
         }
 
         this.diagnosticCollection.clear();
-        for (const [fsPath, diags] of diagMap) {
-          this.diagnosticCollection.set(vscode.Uri.file(fsPath), diags);
+        for (const entry of diagMap.values()) {
+          this.diagnosticCollection.set(entry.uri, entry.diags);
         }
       }
     );

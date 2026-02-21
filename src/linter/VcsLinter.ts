@@ -11,10 +11,14 @@ export default class VcsLinter extends BaseLinter {
   }
 
   protected override updateConfig() {
-    this.configuration = vscode.workspace.getConfiguration('verilog.linting.vcs');
-    this.config.arguments = this.configuration.get<string>('arguments', '-lint=all -sverilog');
+    this.configuration = vscode.workspace.getConfiguration('verilogLinter.linting.vcs');
+    const exe = this.configuration.get<string>('executable', 'vcs');
+    const args = this.configuration.get<string>('arguments', '-lint=all -sverilog');
+    this.config.executable = exe;
+    this.config.arguments = args;
     const paths = this.configuration.get<string[]>('includePath', []);
     this.config.includePath = this.resolveIncludePaths(paths);
+    this.outputChannel.appendLine(`[VCS Config] loaded executable: '${exe}' (type: ${typeof exe}), arguments: '${args}'`);
   }
 
   protected lint(doc: vscode.TextDocument) {
@@ -29,14 +33,32 @@ export default class VcsLinter extends BaseLinter {
     // Add the target file
     args.push(`"${doc.uri.fsPath}"`);
 
-    const command = `vcs ${args.join(' ')}`;
+    const exe = this.config.executable || 'vcs';
+    const innerCommand = `"${exe}" ${args.join(' ')}`;
+    // Run inside a bash login shell to ensure environment variables like VCS_HOME are sourced
+    const command = `bash -lc '${innerCommand}'`;
     const cwd = this.getWorkingDirectory(doc);
+
+    this.outputChannel.appendLine(`[VCS Execute] running command: ${command}`);
 
     child.exec(
       command,
       { cwd },
       (_error: child.ExecException | null, stdout: string, _stderr: string) => {
-        const diagMap = new Map<string, vscode.Diagnostic[]>();
+        this.outputChannel.appendLine(`[VCS Execute Callback] error: ${_error ? _error.message : 'null'}`);
+        this.outputChannel.appendLine(`[VCS Execute Callback] stdout: \n${stdout}`);
+        this.outputChannel.appendLine(`[VCS Execute Callback] stderr: \n${_stderr}`);
+
+        // Only show the command not found error if we actually failed to run VCS
+        // (If the output contains "Chronologic VCS", it means VCS actually ran, 
+        // and the error is just from a messy bash profile script)
+        const output = `${stdout}\n${_stderr}`;
+        if (_error && !output.includes('Chronologic VCS') && ((_error as any).code === 127 || _stderr.includes('command not found') || _error.message?.includes('ENOENT'))) {
+          vscode.window.showErrorMessage(`VCS linter ('${exe}') not found. Please set 'verilogLinter.linting.vcs.executable' to the absolute path in Settings.`);
+          return;
+        }
+
+        const diagMap = new Map<string, { uri: vscode.Uri; diags: vscode.Diagnostic[] }>();
         // VCS messages typically look like:
         // Error-[SE] Syntax error
         //   Following verilog source has syntax error :
@@ -48,14 +70,22 @@ export default class VcsLinter extends BaseLinter {
         const errorRegex = /(?:Error|Warning)-\[.*?\][\s\S]*?"(.*?)"\s*,\s*(\d+)/g;
         let match;
 
-        while ((match = errorRegex.exec(stdout)) !== null) {
+        while ((match = errorRegex.exec(output)) !== null) {
           const fileRaw = match[1];
           const lineNum = Number(match[2]);
           const message = match[0].trim(); // full matched block
           const isError = message.startsWith('Error');
           
           const severity = isError ? vscode.DiagnosticSeverity.Error : vscode.DiagnosticSeverity.Warning;
-          const fsPath = path.isAbsolute(fileRaw) ? fileRaw : path.resolve(cwd, fileRaw);
+          
+          let fileUri: vscode.Uri;
+          if (doc.uri.fsPath === fileRaw || doc.uri.fsPath.endsWith(fileRaw)) {
+            fileUri = doc.uri;
+          } else {
+            const fsPath = path.isAbsolute(fileRaw) ? fileRaw : path.resolve(cwd, fileRaw);
+            // Use doc.uri.with to preserve the scheme (e.g. vscode-remote://)
+            fileUri = doc.uri.with({ path: fsPath });
+          }
 
           const rangeLine = Math.max(0, lineNum - 1);
           let startCol = 0;
@@ -72,14 +102,16 @@ export default class VcsLinter extends BaseLinter {
           const d = new vscode.Diagnostic(range, message, severity);
           d.source = 'vcs';
 
-          const arr = diagMap.get(fsPath) ?? [];
-          arr.push(d);
-          diagMap.set(fsPath, arr);
+          const uriStr = fileUri.toString();
+          if (!diagMap.has(uriStr)) {
+            diagMap.set(uriStr, { uri: fileUri, diags: [] });
+          }
+          diagMap.get(uriStr)!.diags.push(d);
         }
 
         this.diagnosticCollection.clear();
-        for (const [fsPath, diags] of diagMap) {
-          this.diagnosticCollection.set(vscode.Uri.file(fsPath), diags);
+        for (const entry of diagMap.values()) {
+          this.diagnosticCollection.set(entry.uri, entry.diags);
         }
       }
     );

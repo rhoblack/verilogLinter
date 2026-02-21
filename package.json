@@ -68,6 +68,11 @@
             "default": "none",
             "description": "Select the Verilog/SystemVerilog linter."
           },
+          "verilogLinter.linting.vcs.executable": {
+            "type": "string",
+            "default": "vcs",
+            "description": "Absolute path to the vcs executable (or 'vcs' if in PATH)."
+          },
           "verilogLinter.linting.vcs.arguments": {
             "type": "string",
             "default": "-lint=all -sverilog",
@@ -81,6 +86,11 @@
             "default": [],
             "description": "Include paths for VCS linting."
           },
+          "verilogLinter.linting.xcelium.executable": {
+            "type": "string",
+            "default": "xrun",
+            "description": "Absolute path to the xrun executable (or 'xrun' if in PATH)."
+          },
           "verilogLinter.linting.xcelium.arguments": {
             "type": "string",
             "default": "-compile -sv",
@@ -93,6 +103,11 @@
             },
             "default": [],
             "description": "Include paths for Xcelium linting."
+          },
+          "verilogLinter.linting.xvlog.executable": {
+            "type": "string",
+            "default": "xvlog",
+            "description": "Absolute path to the xvlog executable (or 'xvlog' if in PATH)."
           },
           "verilogLinter.linting.xvlog.arguments": {
             "type": "string",
