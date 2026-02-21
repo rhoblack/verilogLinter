@@ -29,7 +29,17 @@ export default class LintManager {
       return;
     }
 
-    const linterName = vscode.workspace.getConfiguration('verilogLinter.linting').get<string>('linter', 'none');
+    const config = vscode.workspace.getConfiguration('verilogLinter.linting');
+    let linterName = config.get<string>('linter', 'auto');
+
+    if (linterName === 'auto') {
+      const platform = process.platform;
+      if (platform === 'win32') {
+        linterName = config.get<string>('windowsLinter', 'xvlog');
+      } else {
+        linterName = config.get<string>('linuxLinter', 'vcs');
+      }
+    }
 
     // If linter hasn't changed its core type, just let it update its own config. No need to nuke the diagnostics.
     if (this.linter !== null) {

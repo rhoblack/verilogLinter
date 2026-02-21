@@ -72,13 +72,36 @@
           "verilogLinter.linting.linter": {
             "type": "string",
             "enum": [
-              "none",
+              "auto",
+              "vcs",
+              "xvlog",
+              "xcelium",
+              "none"
+            ],
+            "default": "auto",
+            "description": "Select the Verilog/SystemVerilog linter. 'auto' will use the OS-specific linter configured below."
+          },
+          "verilogLinter.linting.windowsLinter": {
+            "type": "string",
+            "enum": [
+              "xvlog",
               "vcs",
               "xcelium",
-              "xvlog"
+              "none"
             ],
-            "default": "none",
-            "description": "Select the Verilog/SystemVerilog linter."
+            "default": "xvlog",
+            "description": "Linter to use on Windows when linter is set to 'auto'."
+          },
+          "verilogLinter.linting.linuxLinter": {
+            "type": "string",
+            "enum": [
+              "vcs",
+              "xvlog",
+              "xcelium",
+              "none"
+            ],
+            "default": "vcs",
+            "description": "Linter to use on Linux when linter is set to 'auto'."
           },
           "verilogLinter.linting.vcs.executable": {
             "type": "string",
