@@ -12,6 +12,8 @@ export default class XvlogLinter extends BaseLinter {
 
   constructor(diagnosticCollection: vscode.DiagnosticCollection) {
     super('xvlog', diagnosticCollection);
+    // Re-call updateConfig after subclass field initializers have run
+    this.updateConfig();
   }
 
   protected override updateConfig() {
