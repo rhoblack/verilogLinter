@@ -4,7 +4,7 @@
   "publisher": "rhoblack",
   "description": "A Verilog-HDL linter extension for VS Code",
   "author": "Rho JIN-HO(rhoblack)",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -46,41 +46,13 @@
     "grammars": [
       {
         "language": "verilog",
-        "scopeName": "source.verilog.verilog-linter.injection",
-        "path": "./syntaxes/verilog.tmLanguage.json",
-        "injectTo": [
-          "source.verilog",
-          "source.systemverilog"
-        ]
+        "scopeName": "source.verilog",
+        "path": "./syntaxes/verilog.tmLanguage.json"
       },
       {
         "language": "systemverilog",
-        "scopeName": "source.systemverilog.verilog-linter.injection",
-        "path": "./syntaxes/systemverilog.tmLanguage.json",
-        "injectTo": [
-          "source.verilog",
-          "source.systemverilog"
-        ]
-      },
-      {
-        "scopeName": "markdown.verilog.codeblock",
-        "path": "./syntaxes/verilog.tmLanguage.json",
-        "injectTo": [
-          "text.html.markdown"
-        ],
-        "embeddedLanguages": {
-          "source.verilog": "verilog"
-        }
-      },
-      {
-        "scopeName": "markdown.systemverilog.codeblock",
-        "path": "./syntaxes/systemverilog.tmLanguage.json",
-        "injectTo": [
-          "text.html.markdown"
-        ],
-        "embeddedLanguages": {
-          "source.systemverilog": "systemverilog"
-        }
+        "scopeName": "source.systemverilog",
+        "path": "./syntaxes/systemverilog.tmLanguage.json"
       }
     ],
     "snippets": [
