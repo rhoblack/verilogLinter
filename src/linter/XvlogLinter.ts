@@ -6,6 +6,8 @@ import BaseLinter from './BaseLinter';
 export default class XvlogLinter extends BaseLinter {
   private configuration!: vscode.WorkspaceConfiguration;
 
+  private uvmSupport: boolean = false;
+
   constructor(diagnosticCollection: vscode.DiagnosticCollection) {
     super('xvlog', diagnosticCollection);
   }
@@ -14,6 +16,7 @@ export default class XvlogLinter extends BaseLinter {
     this.configuration = vscode.workspace.getConfiguration('verilogLinter.linting.xvlog');
     this.config.executable = this.configuration.get<string>('executable', 'xvlog');
     this.config.arguments = this.configuration.get<string>('arguments', '');
+    this.uvmSupport = this.configuration.get<boolean>('uvmSupport', false);
     const paths = this.configuration.get<string[]>('includePath', []);
     this.config.includePath = this.resolveIncludePaths(paths);
   }
@@ -26,6 +29,9 @@ export default class XvlogLinter extends BaseLinter {
     
     if (doc.languageId === 'systemverilog') {
         args.push('--sv');
+        if (this.uvmSupport) {
+            args.push('-L uvm');
+        }
     }
 
     // Add include paths

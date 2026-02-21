@@ -7,6 +7,8 @@ import { expandEnvironmentVariables } from '../utils';
 export default class VcsLinter extends BaseLinter {
   private configuration!: vscode.WorkspaceConfiguration;
 
+  private uvmSupport: boolean = false;
+
   constructor(diagnosticCollection: vscode.DiagnosticCollection) {
     super('vcs', diagnosticCollection);
   }
@@ -16,6 +18,7 @@ export default class VcsLinter extends BaseLinter {
     let exe = this.configuration.get<string>('executable', 'vcs');
     const vcsHome = this.configuration.get<string>('vcsHome', '');
     const args = this.configuration.get<string>('arguments', '-lint=all -sverilog');
+    this.uvmSupport = this.configuration.get<boolean>('uvmSupport', false);
 
     // 1. If vcsHome is set, use it to find VCS
     if (vcsHome) {
@@ -31,7 +34,7 @@ export default class VcsLinter extends BaseLinter {
     this.config.arguments = expandEnvironmentVariables(args);
     const paths = this.configuration.get<string[]>('includePath', []);
     this.config.includePath = this.resolveIncludePaths(paths);
-    this.outputChannel.appendLine(`[VCS Config] loaded executable: '${this.config.executable}', arguments: '${this.config.arguments}'`);
+    this.outputChannel.appendLine(`[VCS Config] loaded executable: '${this.config.executable}', arguments: '${this.config.arguments}', uvmSupport: ${this.uvmSupport}`);
   }
 
   protected lint(doc: vscode.TextDocument) {
@@ -42,6 +45,10 @@ export default class VcsLinter extends BaseLinter {
     // Add common arguments
     if (this.config.arguments) {
       args.push(this.config.arguments);
+    }
+    // Add UVM support
+    if (this.uvmSupport) {
+        args.push('-ntb_opts uvm');
     }
     // Add the target file
     args.push(`"${doc.uri.fsPath}"`);

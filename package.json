@@ -129,6 +129,11 @@
             "default": [],
             "description": "Include paths for VCS linting."
           },
+          "verilogLinter.linting.vcs.uvmSupport": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable UVM support for VCS (adds -ntb_opts uvm)."
+          },
           "verilogLinter.linting.xcelium.executable": {
             "type": "string",
             "default": "xrun",
@@ -145,6 +150,11 @@
             "default": [],
             "description": "Include paths for Xcelium linting."
           },
+          "verilogLinter.linting.xcelium.uvmSupport": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable UVM support for Xcelium (adds -uvm)."
+          },
           "verilogLinter.linting.xvlog.executable": {
             "type": "string",
             "default": "xvlog",
@@ -160,6 +170,11 @@
             "items": { "type": "string" },
             "default": [],
             "description": "Include paths for xvlog linting."
+          },
+          "verilogLinter.linting.xvlog.uvmSupport": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable UVM support for xvlog (adds -L uvm)."
           }
         }
       },

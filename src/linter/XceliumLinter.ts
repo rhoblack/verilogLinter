@@ -6,6 +6,8 @@ import BaseLinter from './BaseLinter';
 export default class XceliumLinter extends BaseLinter {
   private configuration!: vscode.WorkspaceConfiguration;
 
+  private uvmSupport: boolean = false;
+
   constructor(diagnosticCollection: vscode.DiagnosticCollection) {
     super('xcelium', diagnosticCollection);
   }
@@ -14,12 +16,18 @@ export default class XceliumLinter extends BaseLinter {
     this.configuration = vscode.workspace.getConfiguration('verilogLinter.linting.xcelium');
     this.config.executable = this.configuration.get<string>('executable', 'xrun');
     this.config.arguments = this.configuration.get<string>('arguments', '-compile -sv');
+    this.uvmSupport = this.configuration.get<boolean>('uvmSupport', false);
     const paths = this.configuration.get<string[]>('includePath', []);
     this.config.includePath = this.resolveIncludePaths(paths);
   }
 
   protected lint(doc: vscode.TextDocument) {
     let args: string[] = [];
+    
+    // Add UVM support
+    if (this.uvmSupport) {
+        args.push('-uvm');
+    }
     
     // Add include paths
     args = args.concat(this.config.includePath.map((p: string) => `-INCDIR ${p}`));
