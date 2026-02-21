@@ -4,7 +4,7 @@
   "publisher": "rhoblack",
   "description": "A Verilog-HDL linter extension for VS Code",
   "author": "Rho JIN-HO(rhoblack)",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -62,62 +62,7 @@
         "path": "./themes/verilog-dark.json"
       }
     ],
-    "configurationDefaults": {
-      "editor.tokenColorCustomizations": {
-        "[*Dark*]": {
-          "textMateRules": [
-            { "scope": ["storage.type.module", "storage.type.interface", "storage.type.class", "storage.type.package", "storage.type.program", "storage.type.udp"], "settings": { "foreground": "#89DCEB", "fontStyle": "bold" } },
-            { "scope": ["storage.type.function", "storage.type.task"], "settings": { "foreground": "#89B4FA", "fontStyle": "bold" } },
-            { "scope": ["keyword.control.verilog", "keyword.control.systemverilog"], "settings": { "foreground": "#F38BA8" } },
-            { "scope": ["keyword.control.block.systemverilog", "keyword.control.block.verilog", "keyword.other.block.verilog", "keyword.other.block.systemverilog"], "settings": { "foreground": "#CBA6F7" } },
-            { "scope": ["keyword.other.port.verilog", "keyword.other.port.systemverilog"], "settings": { "foreground": "#FAB387", "fontStyle": "bold" } },
-            { "scope": ["storage.type.built-in.systemverilog", "storage.type.built-in.verilog", "support.type.verilog", "support.type.systemverilog"], "settings": { "foreground": "#74C7EC" } },
-            { "scope": ["storage.modifier.systemverilog", "storage.modifier.verilog"], "settings": { "foreground": "#F5C2E7" } },
-            { "scope": ["support.function.builtin.verilog", "support.function.builtin.systemverilog", "entity.name.function.call.system.verilog", "entity.name.function.call.system.systemverilog"], "settings": { "foreground": "#F9E2AF", "fontStyle": "bold" } },
-            { "scope": ["entity.name.function.preprocessor.verilog", "entity.name.function.preprocessor.systemverilog", "keyword.other.compiler-directive.verilog", "keyword.other.compiler-directive.systemverilog"], "settings": { "foreground": "#CBA6F7", "fontStyle": "italic" } },
-            { "scope": ["support.class.uvm.systemverilog"], "settings": { "foreground": "#A6E3A1" } },
-            { "scope": ["support.function.uvm.systemverilog"], "settings": { "foreground": "#94E2D5" } },
-            { "scope": ["constant.numeric.integer.verilog", "constant.numeric.integer.systemverilog", "constant.numeric.float.verilog", "constant.numeric.float.systemverilog"], "settings": { "foreground": "#B5CEA8" } },
-            { "scope": ["constant.numeric.size.verilog", "constant.numeric.size.systemverilog"], "settings": { "foreground": "#F5C2E7" } },
-            { "scope": ["constant.numeric.base.verilog", "constant.numeric.base.systemverilog"], "settings": { "foreground": "#FAB387" } },
-            { "scope": ["constant.numeric.digit.verilog", "constant.numeric.digit.systemverilog", "constant.numeric.sized-integer.verilog", "constant.numeric.sized-integer.systemverilog"], "settings": { "foreground": "#B5CEA8" } },
-            { "scope": ["constant.numeric.special.verilog", "constant.numeric.special.systemverilog"], "settings": { "foreground": "#F38BA8" } },
-            { "scope": ["constant.other.parameter.verilog", "constant.other.parameter.systemverilog"], "settings": { "foreground": "#EBA0AC" } },
-            { "scope": ["keyword.operator.comparison.verilog", "keyword.operator.comparison.systemverilog"], "settings": { "foreground": "#F38BA8" } },
-            { "scope": ["keyword.operator.assignment.verilog", "keyword.operator.assignment.systemverilog"], "settings": { "foreground": "#89B4FA" } },
-            { "scope": ["keyword.operator.bitwise.verilog", "keyword.operator.bitwise.systemverilog", "keyword.operator.arithmetic.verilog", "keyword.operator.arithmetic.systemverilog", "keyword.operator.logical.verilog", "keyword.operator.logical.systemverilog"], "settings": { "foreground": "#89DCEB" } },
-            { "scope": ["string.quoted.double.verilog", "string.quoted.double.systemverilog"], "settings": { "foreground": "#A6E3A1" } },
-            { "scope": ["comment.block.verilog", "comment.line.verilog", "comment.block.systemverilog", "comment.line.double-slash.systemverilog"], "settings": { "foreground": "#585B70", "fontStyle": "italic" } }
-          ]
-        },
-        "[*Light*]": {
-          "textMateRules": [
-            { "scope": ["storage.type.module", "storage.type.interface", "storage.type.class", "storage.type.package", "storage.type.program", "storage.type.udp"], "settings": { "foreground": "#006080", "fontStyle": "bold" } },
-            { "scope": ["storage.type.function", "storage.type.task"], "settings": { "foreground": "#0550AE", "fontStyle": "bold" } },
-            { "scope": ["keyword.control.verilog", "keyword.control.systemverilog"], "settings": { "foreground": "#AF00DB" } },
-            { "scope": ["keyword.control.block.systemverilog", "keyword.control.block.verilog", "keyword.other.block.verilog", "keyword.other.block.systemverilog"], "settings": { "foreground": "#6F42C1" } },
-            { "scope": ["keyword.other.port.verilog", "keyword.other.port.systemverilog"], "settings": { "foreground": "#C24F1A", "fontStyle": "bold" } },
-            { "scope": ["storage.type.built-in.systemverilog", "storage.type.built-in.verilog", "support.type.verilog", "support.type.systemverilog"], "settings": { "foreground": "#267F99" } },
-            { "scope": ["storage.modifier.systemverilog", "storage.modifier.verilog"], "settings": { "foreground": "#811F3F" } },
-            { "scope": ["support.function.builtin.verilog", "support.function.builtin.systemverilog", "entity.name.function.call.system.verilog", "entity.name.function.call.system.systemverilog"], "settings": { "foreground": "#795E26", "fontStyle": "bold" } },
-            { "scope": ["entity.name.function.preprocessor.verilog", "entity.name.function.preprocessor.systemverilog", "keyword.other.compiler-directive.verilog", "keyword.other.compiler-directive.systemverilog"], "settings": { "foreground": "#6F42C1", "fontStyle": "italic" } },
-            { "scope": ["support.class.uvm.systemverilog"], "settings": { "foreground": "#1A7432" } },
-            { "scope": ["support.function.uvm.systemverilog"], "settings": { "foreground": "#0E7490" } },
-            { "scope": ["constant.numeric.integer.verilog", "constant.numeric.integer.systemverilog", "constant.numeric.float.verilog", "constant.numeric.float.systemverilog"], "settings": { "foreground": "#098658" } },
-            { "scope": ["constant.numeric.size.verilog", "constant.numeric.size.systemverilog"], "settings": { "foreground": "#811F3F" } },
-            { "scope": ["constant.numeric.base.verilog", "constant.numeric.base.systemverilog"], "settings": { "foreground": "#C24F1A" } },
-            { "scope": ["constant.numeric.digit.verilog", "constant.numeric.digit.systemverilog", "constant.numeric.sized-integer.verilog", "constant.numeric.sized-integer.systemverilog"], "settings": { "foreground": "#098658" } },
-            { "scope": ["constant.numeric.special.verilog", "constant.numeric.special.systemverilog"], "settings": { "foreground": "#AF00DB" } },
-            { "scope": ["constant.other.parameter.verilog", "constant.other.parameter.systemverilog"], "settings": { "foreground": "#9A0000" } },
-            { "scope": ["keyword.operator.comparison.verilog", "keyword.operator.comparison.systemverilog"], "settings": { "foreground": "#C00000" } },
-            { "scope": ["keyword.operator.assignment.verilog", "keyword.operator.assignment.systemverilog"], "settings": { "foreground": "#0550AE" } },
-            { "scope": ["keyword.operator.bitwise.verilog", "keyword.operator.bitwise.systemverilog", "keyword.operator.arithmetic.verilog", "keyword.operator.arithmetic.systemverilog", "keyword.operator.logical.verilog", "keyword.operator.logical.systemverilog"], "settings": { "foreground": "#267F99" } },
-            { "scope": ["string.quoted.double.verilog", "string.quoted.double.systemverilog"], "settings": { "foreground": "#A31515" } },
-            { "scope": ["comment.block.verilog", "comment.line.verilog", "comment.block.systemverilog", "comment.line.double-slash.systemverilog"], "settings": { "foreground": "#6A9955", "fontStyle": "italic" } }
-          ]
-        }
-      }
-    },
+
     "snippets": [
       {
         "language": "verilog",
@@ -129,6 +74,26 @@
       }
     ],
     "configuration": [
+      {
+        "title": "Verilog & SystemVerilog: Syntax Highlight",
+        "properties": {
+          "verilogLinter.highlight.colorMode": {
+            "type": "string",
+            "enum": [
+              "16color",
+              "4color",
+              "off"
+            ],
+            "enumDescriptions": [
+              "16색 모드: 키워드, 타입, 포트, 시스템 태스크 등 세부 요소별로 고유한 색상을 부여합니다.",
+              "4색 모드: 키워드, 타입, 상수, 주석의 4가지 그룹으로 간결하게 구분합니다.",
+              "끄기: 확장의 색상 커스터마이징을 비활성화하고 테마 기본 색상을 사용합니다."
+            ],
+            "default": "16color",
+            "description": "Verilog/SystemVerilog 구문 강조 색상 모드를 선택합니다. Dark/Light 테마에 따라 자동으로 최적화된 색상이 적용됩니다."
+          }
+        }
+      },
       {
         "title": "Verilog & SystemVerilog: OS Linter Selection",
         "properties": {

@@ -4,10 +4,12 @@ import FormatManager from './formatter/FormatManager';
 import VerilogHoverProvider from './hover/HoverProvider';
 import { ModuleIndexer } from './indexer/ModuleIndexer';
 import { VerilogCompletionProvider } from './completion/VerilogCompletionProvider';
+import { HighlightManager } from './highlight/HighlightManager';
 
 let lintManager: LintManager;
 let formatManager: FormatManager;
 let moduleIndexer: ModuleIndexer;
+let highlightManager: HighlightManager;
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "verilog-linter" is now active!');
@@ -37,6 +39,10 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.languages.registerCompletionItemProvider('systemverilog', completionProvider, '$', '`')
     );
 
+    // Initialize Highlight Manager (dynamic 4/16 color modes)
+    highlightManager = new HighlightManager();
+    context.subscriptions.push(highlightManager);
+
     let disposable = vscode.commands.registerCommand('verilog-linter.helloWorld', () => {
         vscode.window.showInformationMessage('Hello World from Verilog-HDL Linter!');
     });
@@ -53,5 +59,8 @@ export function deactivate() {
     }
     if (moduleIndexer) {
         moduleIndexer.dispose();
+    }
+    if (highlightManager) {
+        highlightManager.dispose();
     }
 }
