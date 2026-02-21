@@ -1,7 +1,7 @@
 {
   "name": "Verilog-Linter Injection (SystemVerilog)",
   "scopeName": "source.systemverilog.verilog-linter.injection",
-  "injectionSelector": "L:source.systemverilog",
+  "injectionSelector": "L:source.verilog, L:source.systemverilog",
   "fileTypes": [
     "v",
     "vh",
@@ -31,7 +31,7 @@
   "repository": {
     "system-tf": {
       "match": "\\$[a-zA-Z0-9_$][a-zA-Z0-9_$]*\\b",
-      "name": "support.function.system.systemverilog"
+      "name": "entity.name.tag.systemverilog"
     },
     "sv-control": {
       "match": "\\b(initial|always|always_comb|always_ff|always_latch|final|if|else|case|casex|casez|default|endcase|return|break|continue|for|foreach|while|assign|deassign|force|release|wait|forever|repeat|module|endmodule|interface|endinterface|program|endprogram|package|endpackage|class|endclass|task|endtask|function|endfunction|primitive|endprimitive|modport|clocking|endclocking|generate|endgenerate|bind|posedge|negedge|edge)\\b",
