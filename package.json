@@ -69,18 +69,6 @@
       {
         "title": "Verilog & SystemVerilog: Linting",
         "properties": {
-          "verilogLinter.linting.linter": {
-            "type": "string",
-            "enum": [
-              "auto",
-              "vcs",
-              "xvlog",
-              "xcelium",
-              "none"
-            ],
-            "default": "auto",
-            "description": "Select the Verilog/SystemVerilog linter. 'auto' will use the OS-specific linter configured below."
-          },
           "verilogLinter.linting.windowsLinter": {
             "type": "string",
             "enum": [
@@ -102,6 +90,18 @@
             ],
             "default": "vcs",
             "description": "Linter to use on Linux when linter is set to 'auto'."
+          },
+          "verilogLinter.linting.linter": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "vcs",
+              "xvlog",
+              "xcelium",
+              "none"
+            ],
+            "default": "auto",
+            "description": "Select the Verilog/SystemVerilog linter. 'auto' will use the OS-specific linter configured above."
           },
           "verilogLinter.linting.vcs.executable": {
             "type": "string",
