@@ -18,6 +18,18 @@
       "include": "#strings"
     },
     {
+      "include": "#uvm-library"
+    },
+    {
+      "include": "#system-tf"
+    },
+    {
+      "include": "#all-types"
+    },
+    {
+      "include": "#storage-scope"
+    },
+    {
       "include": "#typedef-enum-struct-union"
     },
     {
@@ -48,9 +60,6 @@
       "include": "#sequence"
     },
     {
-      "include": "#all-types"
-    },
-    {
       "include": "#module-parameters"
     },
     {
@@ -60,9 +69,6 @@
       "include": "#port-net-parameter"
     },
     {
-      "include": "#system-tf"
-    },
-    {
       "include": "#assertion"
     },
     {
@@ -70,9 +76,6 @@
     },
     {
       "include": "#cast-operator"
-    },
-    {
-      "include": "#storage-scope"
     },
     {
       "include": "#attributes"
@@ -682,7 +685,7 @@
     },
     "system-tf": {
       "match": "\\$[a-zA-Z0-9_$][a-zA-Z0-9_$]*\\b",
-      "name": "support.function.system.systemverilog"
+      "name": "keyword.other.system-tf.systemverilog"
     },
     "cast-operator": {
       "match": "[ \\t\\r\\n]*([0-9]+|[a-zA-Z_][a-zA-Z0-9_$]*)(')(?=\\()",
@@ -1089,15 +1092,15 @@
     "built-ins": {
       "patterns": [
         {
-          "match": "[ \\t\\r\\n]*\\b(bit|logic|reg|byte|shortint|int|longint|integer|time|genvar|shortreal|real|realtime|supply[01]|tri(?:and|or|reg|[01])?|uwire|wire|wand|wor|void|string|process|event)\\b",
-          "name": "support.type.built-in.systemverilog"
+          "match": "\\b(bit|logic|reg|byte|shortint|int|longint|integer|time|genvar|shortreal|real|realtime|supply[01]|tri(?:and|or|reg|[01])?|uwire|wire|wand|wor|void|string|process|event)\\b",
+          "name": "storage.type.systemverilog"
         },
         {
-          "match": "[ \\t\\r\\n]*\\b(genvar|var|signed|unsigned|const)\\b",
+          "match": "\\b(genvar|var|signed|unsigned|const)\\b",
           "name": "storage.modifier.systemverilog"
         },
         {
-          "match": "[ \\t\\r\\n]*\\b(uvm_(?:root|transaction|component|monitor|driver|test|env|object|agent|sequence(?:_base|_item|_state)?|sequencer(?:_base)?|component_registry|analysis_(?:imp|port|export)|config_db|active_passive_enum|phase|verbosity|tlm_(?:analysis_fifo|fifo)|report_server|objection|recorder|domain|reg(?:_field|_block)?|bitstream_t|radix_enum|printer|packer|comparer|scope_stack|report_object|callback|factory|subscriber|scoreboard|mem|vreg|predict|void|bit|byte|shortint|int|longint|integer|time|genvar|shortreal|real|realtime|string|process|event))\\b",
+          "match": "\\b(uvm_(?:root|transaction|component|monitor|driver|test|env|object|agent|sequence(?:_base|_item|_state)?|sequencer(?:_base)?|component_registry|analysis_(?:imp|port|export)|config_db|active_passive_enum|phase|verbosity|tlm_(?:analysis_fifo|fifo)|report_server|objection|recorder|domain|reg(?:_field|_block)?|bitstream_t|radix_enum|printer|packer|comparer|scope_stack|report_object|callback|factory|subscriber|scoreboard|mem|vreg|predict|void|bit|byte|shortint|int|longint|integer|time|genvar|shortreal|real|realtime|string|process|event))\\b",
           "name": "support.class.uvm.systemverilog"
         }
       ]
@@ -1385,6 +1388,18 @@
         }
       },
       "name": "meta.import.systemverilog"
+    },
+    "uvm-library": {
+      "patterns": [
+        {
+          "match": "\\b(uvm_report_(?:info|warning|error|fatal)|start_item|finish_item|randomize|type_id|create|get_config_.*|set_config_.*|put|get|peek|try_.*|can_.*|write|connect|build_phase|connect_phase|run_phase|report_phase|main_phase)\\b",
+          "name": "support.function.uvm.systemverilog"
+        },
+        {
+          "match": "\\b(uvm_(?:root|transaction|component|monitor|driver|test|env|object|agent|sequence(?:_base|_item|_state)?|sequencer(?:_base)?|component_registry|analysis_(?:imp|port|export)|config_db|active_passive_enum|phase|verbosity|tlm_(?:analysis_fifo|fifo)|report_server|objection|recorder|domain|reg(?:_field|_block)?))\\b",
+          "name": "support.class.uvm.systemverilog"
+        }
+      ]
     },
     "tables": {
       "begin": "[ \\t\\r\\n]*\\b(table)\\b",
