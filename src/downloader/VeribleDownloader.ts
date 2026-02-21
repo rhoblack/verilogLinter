@@ -10,28 +10,54 @@ const exec = promisify(child_process.exec);
 export class VeribleDownloader {
     private static readonly REPO = 'chipsalliance/verible';
     private static readonly BINARY_NAME = 'verible-verilog-format';
+    private outputChannel: vscode.OutputChannel;
 
-    constructor(private context: vscode.ExtensionContext) {}
+    constructor(private context: vscode.ExtensionContext) {
+        this.outputChannel = vscode.window.createOutputChannel('Verible Downloader');
+    }
 
     /**
      * Estimates the binary path if it exists locally in globalStorage.
      */
     public getLocalBinaryPath(): string | undefined {
         const storagePath = this.context.globalStorageUri.fsPath;
-        const binSubDir = process.platform === 'win32' ? 'bin' : 'bin'; // Usually in bin folder after extraction
+        this.outputChannel.appendLine(`[Binary Search] Searching in: ${storagePath}`);
         
-        // We look for any folder starting with 'verible-' and containing 'bin/verible-verilog-format'
-        if (!fs.existsSync(storagePath)) return undefined;
-
-        const folders = fs.readdirSync(storagePath);
-        for (const folder of folders) {
-            if (folder.startsWith('verible-')) {
-                const fullPath = path.join(storagePath, folder, binSubDir, this.getExeName());
-                if (fs.existsSync(fullPath)) {
-                    return fullPath;
-                }
-            }
+        if (!fs.existsSync(storagePath)) {
+            this.outputChannel.appendLine(`[Binary Search] Storage path does not exist.`);
+            return undefined;
         }
+
+        const exeName = this.getExeName();
+        this.outputChannel.appendLine(`[Binary Search] Looking for: ${exeName}`);
+
+        // Recursive search for the binary
+        const findBinary = (dir: string): string | undefined => {
+            try {
+                const files = fs.readdirSync(dir);
+                for (const file of files) {
+                    const fullPath = path.join(dir, file);
+                    const stat = fs.statSync(fullPath);
+                    if (stat.isDirectory()) {
+                        const found = findBinary(fullPath);
+                        if (found) return found;
+                    } else if (file === exeName) {
+                        return fullPath;
+                    }
+                }
+            } catch (e) {
+                this.outputChannel.appendLine(`[Binary Search] Error reading ${dir}: ${e}`);
+            }
+            return undefined;
+        };
+
+        const foundPath = findBinary(storagePath);
+        if (foundPath) {
+            this.outputChannel.appendLine(`[Binary Search] Found binary at: ${foundPath}`);
+            return foundPath;
+        }
+
+        this.outputChannel.appendLine(`[Binary Search] Binary not found in global storage.`);
         return undefined;
     }
 
@@ -42,12 +68,18 @@ export class VeribleDownloader {
             cancellable: false
         }, async (progress) => {
             try {
+                this.outputChannel.show(true);
+                this.outputChannel.appendLine(`[Download] Starting Verible download process...`);
+
                 progress.report({ message: "Checking for latest version..." });
                 const assetUrl = await this.getLatestAssetUrl();
                 if (!assetUrl) throw new Error("Could not find suitable Verible asset for your OS.");
 
+                this.outputChannel.appendLine(`[Download] Found asset: ${assetUrl}`);
+
                 const storagePath = this.context.globalStorageUri.fsPath;
                 if (!fs.existsSync(storagePath)) {
+                    this.outputChannel.appendLine(`[Download] Creating storage directory...`);
                     fs.mkdirSync(storagePath, { recursive: true });
                 }
 
@@ -56,18 +88,23 @@ export class VeribleDownloader {
 
                 await this.downloadFile(assetUrl, downloadPath, progress);
 
+                this.outputChannel.appendLine(`[Download] Extracting to: ${storagePath}`);
                 progress.report({ message: `Extracting...` });
                 await this.extract(downloadPath, storagePath);
 
                 // Clean up zip/tarball
                 fs.unlinkSync(downloadPath);
+                this.outputChannel.appendLine(`[Download] Extraction complete. Cleaning up...`);
 
                 const finalPath = this.getLocalBinaryPath();
                 if (finalPath) {
-                    vscode.window.showInformationMessage(`Verible Formatter updated to ${path.basename(path.dirname(path.dirname(finalPath)))}`);
+                    const version = path.basename(path.dirname(path.dirname(finalPath)));
+                    this.outputChannel.appendLine(`[Download] Installed Verible version: ${version}`);
+                    vscode.window.showInformationMessage(`Verible Formatter updated to ${version}`);
                 }
                 return finalPath;
             } catch (err: any) {
+                this.outputChannel.appendLine(`[Download Error] ${err.message}`);
                 vscode.window.showErrorMessage(`Verible Download Failed: ${err.message}`);
                 return undefined;
             }
@@ -133,6 +170,7 @@ export class VeribleDownloader {
             };
 
             const request = (targetUrl: string) => {
+                this.outputChannel.appendLine(`[Download] Connecting to GitHub: ${targetUrl}`);
                 progress.report({ message: "Connecting to GitHub..." });
                 
                 https.get(targetUrl, options, (res) => {
@@ -176,17 +214,21 @@ export class VeribleDownloader {
                     
                     file.on('finish', () => {
                         file.close();
+                        this.outputChannel.appendLine(`[Download] Download complete.`);
                         resolve();
                     });
 
                     file.on('error', (err) => {
-                        fs.unlinkSync(dest);
+                        this.outputChannel.appendLine(`[Download] File stream error: ${err.message}`);
+                        if (fs.existsSync(dest)) fs.unlinkSync(dest);
                         reject(err);
                     });
                 }).on('error', (err) => {
+                    this.outputChannel.appendLine(`[Download] Request error: ${err.message}`);
                     if (fs.existsSync(dest)) fs.unlinkSync(dest);
                     reject(err);
                 }).on('timeout', () => {
+                    this.outputChannel.appendLine(`[Download] Request timeout.`);
                     if (fs.existsSync(dest)) fs.unlinkSync(dest);
                     reject(new Error("Download timed out."));
                 });
@@ -196,10 +238,15 @@ export class VeribleDownloader {
     }
 
     private async extract(filePath: string, destDir: string): Promise<void> {
-        if (process.platform === 'win32') {
-            await exec(`powershell -Command "Expand-Archive -Path '${filePath}' -DestinationPath '${destDir}' -Force"`);
-        } else {
-            await exec(`tar -xzf "${filePath}" -C "${destDir}"`);
+        try {
+            if (process.platform === 'win32') {
+                await exec(`powershell -Command "Expand-Archive -Path '${filePath}' -DestinationPath '${destDir}' -Force"`);
+            } else {
+                await exec(`tar -xzf "${filePath}" -C "${destDir}"`);
+            }
+        } catch (e: any) {
+            this.outputChannel.appendLine(`[Extract Error] ${e.message}`);
+            throw e;
         }
     }
 
