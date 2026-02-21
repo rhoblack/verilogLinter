@@ -14,31 +14,44 @@ Synopsys VCS, Cadence Xcelium, Xilinx Vivado(xvlog)와 같은 상용 컴파일�
 
 ## ✨ 주요 기능 (Features)
 
-### 1. 🎨 생동감 있는 구문 강조 (Vibrant Syntax Highlighting)
+### 1. 🎨 지능형 구문 강조 (Intelligent Syntax Highlighting)
 
-설치 즉시 추가 설정 없이도 **Verilog / SystemVerilog 전용 프리미엄 색상 팔레트**가 자동 적용됩니다.
+설치 즉시 **Verilog / SystemVerilog 전용 프리미엄 색상 팔레트**가 자동 적용됩니다.
+사용자의 취향과 환경에 맞춰 **3가지 색상 모드**를 제공합니다.
 
-- **라이트/다크 테마 자동 적응**: VS Code 테마를 변경하면 읽기 최적화된 색상으로 자동 전환됩니다.
-- **세분화된 문법 요소 구분**: 키워드, 타입, 포트, 시스템 태스크 등 문법 요소별로 고유한 색상을 부여합니다.
-- **별도 설정 불필요**: 설치 즉시 모든 `.v`, `.vh`, `.sv`, `.svh` 파일에 적용됩니다.
+#### ⚙️ 색상 모드 설정
 
-#### 🌙 Dark 테마 색상 팔레트
+VS Code 설정(`Ctrl + ,`) → `verilogLinter highlight` 검색:
+
+| 모드 | 설명 |
+|---|---|
+| **`16color`** (기본값) | 키워드, 타입, 포트, 시스템 태스크, 연산자, 숫자, UVM 등 **16가지 세부 요소**별로 고유한 색상을 부여합니다. |
+| **`4color`** | 키워드(보라), 타입(청록), 상수(초록), 주석(녹색)의 **4가지 그룹**으로 간결하게 구분합니다. 심플한 디자인을 선호하는 분께 추천합니다. |
+| **`off`** | 확장의 색상 커스터마이징을 비활성화하고, 현재 사용 중인 VS Code 테마의 기본 색상을 사용합니다. |
+
+#### 🌗 Dark / Light 테마 자동 적응
+
+- 어떤 VS Code 테마를 사용하더라도, **Dark/Light 모드를 자동으로 감지**하여 최적의 대비를 가진 팔레트로 즉시 전환합니다.
+- 설정 변경 시 **Reload Window 없이 실시간 반영**됩니다.
+
+#### 🌙 16색 Dark 모드 팔레트
 
 | 문법 요소 | 예시 | 색상 |
 |---|---|---|
-| 구조 선언 | `module`, `interface`, `class` | 🩵 청록 (Cyan) Bold |
-| 함수/태스크 | `function`, `task` | 🔵 파랑 (Blue) Bold |
-| 제어문 | `always_ff`, `if`, `for` | 🌸 핑크 (Pink) |
-| 블록 | `begin`, `end`, `fork` | 🟣 보라 (Purple) |
-| 포트 방향 | `input`, `output`, `inout` | 🟠 오렌지 (Orange) Bold |
-| 내장 타입 | `logic`, `wire`, `bit` | 🔵 하늘 (Light Blue) |
-| 시스템 태스크 | `$clog2`, `$display` | 🌕 금색 (Gold) Bold |
+| 구조 선언 | `module`, `interface`, `class` | 🩵 청록 Bold |
+| 함수/태스크 | `function`, `task` | 🔵 파랑 Bold |
+| 제어문 | `always_ff`, `if`, `for` | 🌸 핑크 |
+| 블록 | `begin`, `end`, `fork` | 🟣 보라 |
+| 포트 방향 | `input`, `output`, `inout` | 🟠 오렌지 Bold |
+| 내장 타입 | `logic`, `wire`, `bit` | 🔵 하늘 |
+| 시스템 태스크 | `$clog2`, `$display` | 🌕 금색 Bold |
 | 컴파일러 지시자 | `` `timescale ``, `` `define `` | 🟣 보라 Italic |
-| 숫자 리터럴 | `32'hDEAD`, `1'b0` | 🟢 연두 (Light Green) |
-| 문자열 | `"output_file.txt"` | 🟢 초록 (Green) |
+| UVM 클래스 | `uvm_component` | 🟢 민트 |
+| 숫자 리터럴 | `32'hDEAD`, `1'b0` | 🟢 연두 |
+| 문자열 | `"output_file.txt"` | 🟢 초록 |
 | 주석 | `// TODO`, `/* ... */` | 🩶 회색 Italic |
 
-#### ☀️ Light 테마 색상 팔레트
+#### ☀️ 16색 Light 모드 팔레트
 
 | 문법 요소 | 예시 | 색상 |
 |---|---|---|
@@ -53,6 +66,15 @@ Synopsys VCS, Cadence Xcelium, Xilinx Vivado(xvlog)와 같은 상용 컴파일�
 | 문자열 | `"output_file.txt"` | 🔴 진한 빨강 |
 | 주석 | `// TODO` | 🍃 녹색 Italic |
 
+#### 🎯 4색 모드 팔레트
+
+| 그룹 | 포함 요소 | 🌙 Dark | ☀️ Light |
+|---|---|---|---|
+| 키워드 | `module`, `if`, `begin`, `input`, `` `define `` 등 | 🟣 보라 | 🟣 진한 보라 |
+| 타입 | `logic`, `wire`, `$clog2`, UVM 등 | 🩵 청록 | 🩵 짙은 청록 |
+| 상수 | 숫자, 연산자, 파라미터 등 | 🟢 연두 | 🟢 짙은 초록 |
+| 주석/문자열 | 주석, 문자열 | 🍃 녹색 Italic | 🍃 녹색 Italic |
+
 ---
 
 ### 2. 🔍 실시간 문법 검사 (Linter)
@@ -61,6 +83,7 @@ Synopsys VCS, Cadence Xcelium, Xilinx Vivado(xvlog)와 같은 상용 컴파일�
 
 - **지원하는 린터 엔진:** `vcs`, `xcelium`, `xvlog`
 - **스마트 엔진 선택**: 윈도우/리눅스 환경에 맞춰 최적의 린터를 자동으로 선택합니다. (Windows: `xvlog`, Linux: `vcs` 기본)
+- **UVM 지원**: Vivado/VCS/Xcelium에서 UVM 라이브러리 경로를 자동 감지하여 UVM 코드도 오류 없이 검사합니다.
 - **리모트 최적화**: Remote-SSH 환경에서 사용자의 `.bash_profile` 환경 변수를 완벽하게 상속하여 작동합니다.
 
 ### 3. 🧹 코드 자동 정렬 (Formatter)
@@ -86,9 +109,14 @@ Synopsys VCS, Cadence Xcelium, Xilinx Vivado(xvlog)와 같은 상용 컴파일�
 
 VS Code 설정(`Ctrl + ,`)에서 `verilogLinter`를 검색하여 아래 항목을 확인하세요.
 
-- **`OS Linter Selection`**: 윈도우와 리눅스에서 각각 어떤 툴을 사용할지 설정합니다.
-- **`Indentation Spaces`**: 포매팅 시 사용할 공백 칸 수를 지정합니다 (기본 4).
-- **`Auto Download`**: Verible 포매터를 자동으로 설치할지 여부를 결정합니다.
+| 설정 | 설명 | 기본값 |
+|---|---|---|
+| `highlight.colorMode` | 구문 강조 색상 모드 (`16color` / `4color` / `off`) | `16color` |
+| `linting.linter` | 린터 엔진 선택 (`auto` / `vcs` / `xvlog` / `xcelium` / `none`) | `auto` |
+| `linting.windowsLinter` | Windows에서 사용할 린터 | `xvlog` |
+| `linting.linuxLinter` | Linux에서 사용할 린터 | `vcs` |
+| `formatting.indentationSpaces` | 포매팅 시 공백 칸 수 | `4` |
+| `formatting.autoDownload` | Verible 자동 다운로드 여부 | `true` |
 
 ---
 
