@@ -4,6 +4,7 @@ import BaseFormatter from './BaseFormatter';
 export default class IstyleFormatter extends BaseFormatter {
   constructor() {
     super('istyle');
+    this.readyPromise = Promise.resolve(this.updateConfig());
   }
 
   protected override updateConfig() {

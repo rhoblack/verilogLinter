@@ -29,7 +29,7 @@ export default abstract class BaseFormatter implements vscode.DocumentFormatting
       }
     });
 
-    this.readyPromise = Promise.resolve(this.updateConfig());
+    this.readyPromise = Promise.resolve();
   }
 
   protected abstract updateConfig(): Promise<void> | void;
@@ -40,67 +40,72 @@ export default abstract class BaseFormatter implements vscode.DocumentFormatting
     token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.TextEdit[]> {
     return new Promise(async (resolve, reject) => {
-      await this.readyPromise;
-      
-      const exe = this.config.executable || this.name;
-      const expandedExe = expandEnvironmentVariables(exe);
-      let args = this.config.arguments ? this.config.arguments.split(' ') : [];
-      args = this.getFormatArguments(args, document, options);
+      try {
+        await this.readyPromise;
+        
+        const exe = this.config.executable || this.name;
+        const expandedExe = expandEnvironmentVariables(exe);
+        let args = this.config.arguments ? this.config.arguments.split(' ') : [];
+        args = this.getFormatArguments(args, document, options);
 
-      const command = `"${expandedExe}" ${args.join(' ')}`;
-      const cwd = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : path.dirname(document.uri.fsPath);
+        const command = `"${expandedExe}" ${args.join(' ')}`;
+        const cwd = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : path.dirname(document.uri.fsPath);
 
-      this.outputChannel.appendLine(`[Format Execute] command: ${command}`);
+        this.outputChannel.appendLine(`[Format Execute] command: ${command}`);
 
-      const process = child.exec(
-        command,
-        { cwd },
-        (_error: child.ExecException | null, stdout: string, _stderr: string) => {
-          if (_error) {
-            this.outputChannel.appendLine(`[Format Error] ${_error.message}`);
-            this.outputChannel.appendLine(`[Format Stderr] ${_stderr}`);
-            
-            // If the command is simply not found, show user error and return empty edits.
-            const isNotFound = (_error as any).code === 127 || 
-                               _stderr.includes('is not recognized') || 
-                               _stderr.includes('command not found') || 
-                               _error.message.includes('ENOENT');
+        const process = child.exec(
+          command,
+          { cwd },
+          (_error: child.ExecException | null, stdout: string, _stderr: string) => {
+            if (_error) {
+              this.outputChannel.appendLine(`[Format Error] ${_error.message}`);
+              this.outputChannel.appendLine(`[Format Stderr] ${_stderr}`);
+              
+              // If the command is simply not found, show user error and return empty edits.
+              const isNotFound = (_error as any).code === 127 || 
+                                 _stderr.includes('is not recognized') || 
+                                 _stderr.includes('command not found') || 
+                                 _error.message.includes('ENOENT');
 
-            if (isNotFound) {
-               let msg = `${this.name} formatter ('${expandedExe}') not found.`;
-               if (expandedExe === 'verible' || expandedExe === 'verible-verilog-format') {
-                 msg += " Please check your settings or ensure it is installed.";
-               }
-               msg += " Please set the absolute path in Settings.";
-               vscode.window.showErrorMessage(msg);
-               return resolve([]);
+              if (isNotFound) {
+                 let msg = `${this.name} formatter ('${expandedExe}') not found.`;
+                 if (expandedExe === 'verible' || expandedExe === 'verible-verilog-format') {
+                   msg += " Please check your settings or ensure it is installed.";
+                 }
+                 msg += " Please set the absolute path in Settings.";
+                 vscode.window.showErrorMessage(msg);
+                 return resolve([]);
+              }
+              // For other formatting errors (like syntax errors), don't show a popup if we got no output
+              // This prevents annoying popups while typing/saving incomplete code.
+              if (!stdout) {
+                  this.outputChannel.appendLine(`[Format Error] Formatter exited with error and no output. This is likely a syntax error in the source file.`);
+              } else {
+                  vscode.window.showErrorMessage(`${this.name} formatter failed. Check 'Verilog Formatter Debug (${this.name})' output channel for details.`);
+              }
+              return resolve([]);
             }
-            // For other formatting errors (like syntax errors), don't show a popup if we got no output
-            // This prevents annoying popups while typing/saving incomplete code.
-            if (!stdout) {
-                this.outputChannel.appendLine(`[Format Error] Formatter exited with error and no output. This is likely a syntax error in the source file.`);
+
+            if (stdout) {
+              const fullRange = new vscode.Range(
+                document.positionAt(0),
+                document.positionAt(document.getText().length)
+              );
+              resolve([vscode.TextEdit.replace(fullRange, stdout)]);
             } else {
-                vscode.window.showErrorMessage(`${this.name} formatter failed. Check 'Verilog Formatter Debug (${this.name})' output channel for details.`);
+              resolve([]);
             }
-            return resolve([]);
           }
+        );
 
-          if (stdout) {
-            const fullRange = new vscode.Range(
-              document.positionAt(0),
-              document.positionAt(document.getText().length)
-            );
-            resolve([vscode.TextEdit.replace(fullRange, stdout)]);
-          } else {
-            resolve([]);
-          }
+        // Write document text to stdin
+        if (process.stdin) {
+          process.stdin.write(document.getText());
+          process.stdin.end();
         }
-      );
-
-      // Write document text to stdin
-      if (process.stdin) {
-        process.stdin.write(document.getText());
-        process.stdin.end();
+      } catch (err) {
+        this.outputChannel.appendLine(`[Format Internal Error] ${err}`);
+        resolve([]);
       }
     });
   }

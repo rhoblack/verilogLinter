@@ -8,9 +8,8 @@ export default class VeribleFormatter extends BaseFormatter {
 
   constructor(context: vscode.ExtensionContext) {
     super('verible');
-    this.config.executable = 'verible-verilog-format';
     this.downloader = new VeribleDownloader(context);
-    this.updateConfig();
+    this.readyPromise = Promise.resolve(this.updateConfig());
   }
 
   protected override async updateConfig() {
