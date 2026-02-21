@@ -53,8 +53,7 @@ export class VeribleDownloader {
                 const fileName = path.basename(assetUrl);
                 const downloadPath = path.join(storagePath, fileName);
 
-                progress.report({ message: `Fetching ${fileName}...` });
-                await this.downloadFile(assetUrl, downloadPath);
+                await this.downloadFile(assetUrl, downloadPath, progress);
 
                 progress.report({ message: `Extracting...` });
                 await this.extract(downloadPath, storagePath);
@@ -105,23 +104,50 @@ export class VeribleDownloader {
         });
     }
 
-    private async downloadFile(url: string, dest: string): Promise<void> {
+    private async downloadFile(url: string, dest: string, progress: vscode.Progress<{ message?: string; increment?: number }>): Promise<void> {
         return new Promise((resolve, reject) => {
-            const file = fs.createWriteStream(dest);
-            const request = (url: string) => {
-                https.get(url, (res) => {
+            const options = {
+                headers: { 'User-Agent': 'vscode-verilog-linter' },
+                timeout: 30000 // 30 seconds timeout
+            };
+
+            const request = (targetUrl: string) => {
+                https.get(targetUrl, options, (res) => {
                     if (res.statusCode === 302 || res.statusCode === 301) {
                         request(res.headers.location!);
                         return;
                     }
+
+                    if (res.statusCode !== 200) {
+                        reject(new Error(`Server responded with ${res.statusCode}`));
+                        return;
+                    }
+
+                    const totalSize = parseInt(res.headers['content-length'] || '0', 10);
+                    let downloadedSize = 0;
+                    const file = fs.createWriteStream(dest);
+
+                    res.on('data', (chunk) => {
+                        downloadedSize += chunk.length;
+                        if (totalSize > 0) {
+                            const percent = Math.round((downloadedSize / totalSize) * 100);
+                            progress.report({ message: `Downloading... ${percent}% (${(downloadedSize / 1024 / 1024).toFixed(1)}MB / ${(totalSize / 1024 / 1024).toFixed(1)}MB)` });
+                        } else {
+                            progress.report({ message: `Downloading... ${(downloadedSize / 1024 / 1024).toFixed(1)}MB` });
+                        }
+                    });
+
                     res.pipe(file);
                     file.on('finish', () => {
                         file.close();
                         resolve();
                     });
                 }).on('error', (err) => {
-                    fs.unlinkSync(dest);
+                    if (fs.existsSync(dest)) fs.unlinkSync(dest);
                     reject(err);
+                }).on('timeout', () => {
+                    if (fs.existsSync(dest)) fs.unlinkSync(dest);
+                    reject(new Error("Download timed out."));
                 });
             };
             request(url);
