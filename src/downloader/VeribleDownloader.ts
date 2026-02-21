@@ -108,7 +108,7 @@ export class VeribleDownloader {
         return new Promise((resolve, reject) => {
             const options = {
                 headers: { 'User-Agent': 'vscode-verilog-linter' },
-                timeout: 30000 // 30 seconds timeout
+                timeout: 30000 
             };
 
             const request = (targetUrl: string) => {
@@ -125,13 +125,21 @@ export class VeribleDownloader {
 
                     const totalSize = parseInt(res.headers['content-length'] || '0', 10);
                     let downloadedSize = 0;
+                    let lastPercent = 0;
                     const file = fs.createWriteStream(dest);
 
                     res.on('data', (chunk) => {
                         downloadedSize += chunk.length;
                         if (totalSize > 0) {
-                            const percent = Math.round((downloadedSize / totalSize) * 100);
-                            progress.report({ message: `Downloading... ${percent}% (${(downloadedSize / 1024 / 1024).toFixed(1)}MB / ${(totalSize / 1024 / 1024).toFixed(1)}MB)` });
+                            const percent = Math.floor((downloadedSize / totalSize) * 100);
+                            if (percent > lastPercent) {
+                                const increment = percent - lastPercent;
+                                lastPercent = percent;
+                                progress.report({ 
+                                    message: `Downloading... ${percent}% (${(downloadedSize / 1024 / 1024).toFixed(1)}MB / ${(totalSize / 1024 / 1024).toFixed(1)}MB)`,
+                                    increment: increment
+                                });
+                            }
                         } else {
                             progress.report({ message: `Downloading... ${(downloadedSize / 1024 / 1024).toFixed(1)}MB` });
                         }
