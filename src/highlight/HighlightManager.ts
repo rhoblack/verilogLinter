@@ -125,87 +125,90 @@ const PALETTE_4_LIGHT: TextMateRule[] = [
 export class HighlightManager implements vscode.Disposable {
     private disposables: vscode.Disposable[] = [];
     private outputChannel: vscode.OutputChannel;
-    private isApplying = false; // Guard against recursive calls
+    private debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
     constructor() {
         this.outputChannel = vscode.window.createOutputChannel('Verilog Highlight');
 
         // Apply on activation
-        this.applyHighlight();
+        this.applyHighlightNow();
 
         // Listen for theme changes
         this.disposables.push(
             vscode.window.onDidChangeActiveColorTheme(() => {
-                this.outputChannel.appendLine('[HighlightManager] Theme changed, re-applying highlight...');
-                this.applyHighlight();
+                this.scheduleApply('Theme changed');
             })
         );
 
-        // Listen for configuration changes
+        // Listen for configuration changes (only our setting, NOT editor.tokenColorCustomizations)
         this.disposables.push(
             vscode.workspace.onDidChangeConfiguration((e) => {
                 if (e.affectsConfiguration('verilogLinter.highlight.colorMode')) {
-                    this.outputChannel.appendLine('[HighlightManager] Color mode setting changed, re-applying...');
-                    this.applyHighlight();
+                    this.scheduleApply('Color mode setting changed');
                 }
             })
         );
     }
 
     /**
+     * Debounced scheduler — collapses multiple rapid events into one execution.
+     */
+    private scheduleApply(reason: string): void {
+        if (this.debounceTimer) {
+            clearTimeout(this.debounceTimer);
+        }
+        this.debounceTimer = setTimeout(() => {
+            this.debounceTimer = undefined;
+            this.outputChannel.appendLine(`[HighlightManager] ${reason}, re-applying highlight...`);
+            this.applyHighlightNow();
+        }, 150);
+    }
+
+    /**
      * Determine the current palette and write it into
      * `editor.tokenColorCustomizations` at the global (User) scope.
      */
-    async applyHighlight(): Promise<void> {
-        if (this.isApplying) {
-            return; // Prevent recursive call from our own config update
+    private async applyHighlightNow(): Promise<void> {
+        const config = vscode.workspace.getConfiguration('verilogLinter.highlight');
+        const mode: string = config.get<string>('colorMode', '16color');
+
+        if (mode === 'off') {
+            await this.clearHighlight();
+            this.outputChannel.appendLine('[HighlightManager] Highlight mode is OFF – cleared custom rules.');
+            return;
         }
-        this.isApplying = true;
 
-        try {
-            const config = vscode.workspace.getConfiguration('verilogLinter.highlight');
-            const mode: string = config.get<string>('colorMode', '16color');
+        const isDark = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark
+            || vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.HighContrast;
 
-            if (mode === 'off') {
-                await this.clearHighlight();
-                this.outputChannel.appendLine('[HighlightManager] Highlight mode is OFF – cleared custom rules.');
-                return;
-            }
+        let palette: TextMateRule[];
+        let label: string;
 
-            const isDark = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark
-                || vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.HighContrast;
-
-            let palette: TextMateRule[];
-            let label: string;
-
-            if (mode === '4color') {
-                palette = isDark ? PALETTE_4_DARK : PALETTE_4_LIGHT;
-                label = `4color-${isDark ? 'dark' : 'light'}`;
-            } else {
-                palette = isDark ? PALETTE_16_DARK : PALETTE_16_LIGHT;
-                label = `16color-${isDark ? 'dark' : 'light'}`;
-            }
-
-            // Read existing customizations so we don't overwrite user's non-Verilog rules
-            const editorConfig = vscode.workspace.getConfiguration('editor');
-            const existing = editorConfig.get<Record<string, unknown>>('tokenColorCustomizations') || {};
-
-            // Merge: keep user's rules for other scopes, replace Verilog rules
-            const existingRules = (existing as any).textMateRules as TextMateRule[] | undefined;
-            const nonVerilogRules = (existingRules || []).filter(
-                (rule) => !this.isVerilogRule(rule)
-            );
-
-            const merged = {
-                ...existing,
-                textMateRules: [...nonVerilogRules, ...palette],
-            };
-
-            await editorConfig.update('tokenColorCustomizations', merged, vscode.ConfigurationTarget.Global);
-            this.outputChannel.appendLine(`[HighlightManager] Applied palette: ${label} (${palette.length} rules)`);
-        } finally {
-            this.isApplying = false;
+        if (mode === '4color') {
+            palette = isDark ? PALETTE_4_DARK : PALETTE_4_LIGHT;
+            label = `4color-${isDark ? 'dark' : 'light'}`;
+        } else {
+            palette = isDark ? PALETTE_16_DARK : PALETTE_16_LIGHT;
+            label = `16color-${isDark ? 'dark' : 'light'}`;
         }
+
+        // Read existing customizations so we don't overwrite user's non-Verilog rules
+        const editorConfig = vscode.workspace.getConfiguration('editor');
+        const existing = editorConfig.get<Record<string, unknown>>('tokenColorCustomizations') || {};
+
+        // Merge: keep user's rules for other scopes, replace Verilog rules
+        const existingRules = (existing as any).textMateRules as TextMateRule[] | undefined;
+        const nonVerilogRules = (existingRules || []).filter(
+            (rule) => !this.isVerilogRule(rule)
+        );
+
+        const merged = {
+            ...existing,
+            textMateRules: [...nonVerilogRules, ...palette],
+        };
+
+        await editorConfig.update('tokenColorCustomizations', merged, vscode.ConfigurationTarget.Global);
+        this.outputChannel.appendLine(`[HighlightManager] Applied palette: ${label} (${palette.length} rules)`);
     }
 
     /**
@@ -254,6 +257,9 @@ export class HighlightManager implements vscode.Disposable {
     }
 
     dispose(): void {
+        if (this.debounceTimer) {
+            clearTimeout(this.debounceTimer);
+        }
         // Clean up Verilog highlight rules when extension deactivates
         this.clearHighlight();
         this.disposables.forEach((d) => d.dispose());
