@@ -4,7 +4,7 @@
   "publisher": "rhoblack",
   "description": "A Verilog-HDL linter extension for VS Code",
   "author": "Rho JIN-HO(rhoblack)",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -46,13 +46,21 @@
     "grammars": [
       {
         "language": "verilog",
-        "scopeName": "source.verilog",
-        "path": "./syntaxes/verilog.tmLanguage.json"
+        "scopeName": "source.verilog.verilog-linter.injection",
+        "path": "./syntaxes/verilog.tmLanguage.json",
+        "injectTo": [
+          "source.verilog",
+          "source.systemverilog"
+        ]
       },
       {
         "language": "systemverilog",
-        "scopeName": "source.systemverilog",
-        "path": "./syntaxes/systemverilog.tmLanguage.json"
+        "scopeName": "source.systemverilog.verilog-linter.injection",
+        "path": "./syntaxes/systemverilog.tmLanguage.json",
+        "injectTo": [
+          "source.verilog",
+          "source.systemverilog"
+        ]
       },
       {
         "scopeName": "markdown.verilog.codeblock",
