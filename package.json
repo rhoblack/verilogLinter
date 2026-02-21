@@ -174,7 +174,12 @@
           "verilogLinter.linting.xvlog.uvmSupport": {
             "type": "boolean",
             "default": false,
-            "description": "Enable UVM support for xvlog (adds -L uvm)."
+            "description": "Enable UVM support for xvlog (adds -L uvm and uvm_macros.svh)."
+          },
+          "verilogLinter.linting.xvlog.uvmIncludePath": {
+            "type": "string",
+            "default": "",
+            "description": "Manual path to UVM library (where uvm_macros.svh is). If empty, it attempts auto-detection."
           }
         }
       },

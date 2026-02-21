@@ -7,6 +7,7 @@ export default class XvlogLinter extends BaseLinter {
   private configuration!: vscode.WorkspaceConfiguration;
 
   private uvmSupport: boolean = false;
+  private uvmIncludePath: string = '';
   private autoUvmPath: string | undefined;
 
   constructor(diagnosticCollection: vscode.DiagnosticCollection) {
@@ -18,8 +19,12 @@ export default class XvlogLinter extends BaseLinter {
     this.config.executable = this.configuration.get<string>('executable', 'xvlog');
     this.config.arguments = this.configuration.get<string>('arguments', '');
     this.uvmSupport = this.configuration.get<boolean>('uvmSupport', false);
+    this.uvmIncludePath = this.configuration.get<string>('uvmIncludePath', '');
+    
     const paths = this.configuration.get<string[]>('includePath', []);
     this.config.includePath = this.resolveIncludePaths(paths);
+
+    this.outputChannel.appendLine(`[xvlog Config] loaded executable: '${this.config.executable}', arguments: '${this.config.arguments}', uvmSupport: ${this.uvmSupport}`);
 
     if (this.uvmSupport) {
         this.detectUvmPath();
@@ -28,29 +33,49 @@ export default class XvlogLinter extends BaseLinter {
 
   private detectUvmPath() {
     try {
+        // 1. Check if user provided manual path
+        if (this.uvmIncludePath) {
+            const resolved = path.isAbsolute(this.uvmIncludePath) ? this.uvmIncludePath : path.resolve(this.uvmIncludePath);
+            if (require('fs').existsSync(resolved)) {
+                this.autoUvmPath = resolved;
+                this.outputChannel.appendLine(`[xvlog] Using manual UVM path: ${resolved}`);
+                return;
+            }
+        }
+
+        // 2. Auto-detect from xvlog path
         let exePath = this.config.executable || 'xvlog';
         if (!path.isAbsolute(exePath)) {
-            const result = child.execSync(`where ${exePath}`, { encoding: 'utf8' });
-            exePath = result.split('\n')[0].trim();
+            try {
+                const result = child.execSync(`where ${exePath}`, { encoding: 'utf8' });
+                exePath = result.split('\n')[0].trim();
+            } catch (e) {
+                this.outputChannel.appendLine(`[xvlog] 'where ${exePath}' failed, cannot auto-detect UVM path.`);
+                return;
+            }
         }
 
         if (exePath && path.isAbsolute(exePath)) {
             // Vivado structure: <VivadoRoot>/bin/xvlog.bat
             // UVM path: <VivadoRoot>/data/system_verilog/uvm_1.2
-            const vivadoRoot = path.dirname(path.dirname(exePath));
+            const vivadoBin = path.dirname(exePath);
+            const vivadoRoot = path.dirname(vivadoBin);
             
+            this.outputChannel.appendLine(`[xvlog] detected Vivado root: ${vivadoRoot}`);
+
             // Try different UVM path structures (Vivado versions vary)
             const potentialPaths = [
                 path.join(vivadoRoot, 'data', 'system_verilog', 'uvm_1.2'),
                 path.join(vivadoRoot, 'data', 'systemverilog', 'uvm_1.2'),
-                path.join(vivadoRoot, 'data', 'system_verilog', 'uvm_1.1')
+                path.join(vivadoRoot, 'data', 'system_verilog', 'uvm_1.1'),
+                path.join(vivadoRoot, 'data', 'systemverilog', 'uvm_1.1')
             ];
 
             for (const p of potentialPaths) {
                 if (require('fs').existsSync(p)) {
                     this.autoUvmPath = p;
-                    this.outputChannel.appendLine(`[xvlog] Detected UVM path: ${p}`);
-                    break;
+                    this.outputChannel.appendLine(`[xvlog] Auto-detected UVM path: ${p}`);
+                    return;
                 }
             }
         }
@@ -71,6 +96,13 @@ export default class XvlogLinter extends BaseLinter {
             args.push('-L uvm');
             if (this.autoUvmPath) {
                 args.push(`-i "${this.autoUvmPath}"`);
+                
+                // CRITICAL: xvlog needs uvm_macros.svh to be visible in the compilation stream
+                // We add it to the command line before the actual file
+                const macrosPath = path.join(this.autoUvmPath, 'uvm_macros.svh');
+                if (require('fs').existsSync(macrosPath)) {
+                    args.push(`"${macrosPath}"`);
+                }
             }
         }
     }
@@ -85,13 +117,20 @@ export default class XvlogLinter extends BaseLinter {
     args.push(`"${doc.uri.fsPath}"`);
 
     const exe = this.config.executable || 'xvlog';
-    const command = `${exe} ${args.join(' ')}`;
+    const command = `"${exe}" ${args.join(' ')}`;
     const cwd = this.getWorkingDirectory(doc);
+
+    this.outputChannel.appendLine(`[xvlog Execute] running command: ${command}`);
 
     child.exec(
       command,
       { cwd },
       (_error: child.ExecException | null, stdout: string, _stderr: string) => {
+        if (stdout || _stderr) {
+            this.outputChannel.appendLine(`[xvlog Result] stdout: \n${stdout}`);
+            this.outputChannel.appendLine(`[xvlog Result] stderr: \n${_stderr}`);
+        }
+
         if (_error && ((_error as any).code === 127 || _stderr.includes('command not found') || _error.message.includes('ENOENT'))) {
           vscode.window.showErrorMessage(`Vivado xvlog ('${exe}') not found. Please set 'verilogLinter.linting.xvlog.executable' to the absolute path in Settings.`);
           return;
