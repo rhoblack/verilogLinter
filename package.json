@@ -137,11 +137,11 @@
           "verilogLinter.formatting.formatter": {
             "type": "string",
             "enum": [
-              "none",
               "verible-verilog-format",
-              "istyle-verilog-formatter"
+              "istyle-verilog-formatter",
+              "none"
             ],
-            "default": "none",
+            "default": "verible-verilog-format",
             "description": "Select the Verilog/SystemVerilog document formatter."
           },
           "verilogLinter.formatting.verible.executable": {
