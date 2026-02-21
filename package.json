@@ -67,7 +67,7 @@
     ],
     "configuration": [
       {
-        "title": "Verilog & SystemVerilog: Linting",
+        "title": "Verilog & SystemVerilog: OS Linter Selection",
         "properties": {
           "verilogLinter.linting.windowsLinter": {
             "type": "string",
@@ -102,7 +102,12 @@
             ],
             "default": "auto",
             "description": "Select the Verilog/SystemVerilog linter. 'auto' will use the OS-specific linter configured above."
-          },
+          }
+        }
+      },
+      {
+        "title": "Verilog & SystemVerilog: Linting Details",
+        "properties": {
           "verilogLinter.linting.vcs.executable": {
             "type": "string",
             "default": "vcs",
@@ -120,9 +125,7 @@
           },
           "verilogLinter.linting.vcs.includePath": {
             "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "items": { "type": "string" },
             "default": [],
             "description": "Include paths for VCS linting."
           },
@@ -138,9 +141,7 @@
           },
           "verilogLinter.linting.xcelium.includePath": {
             "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "items": { "type": "string" },
             "default": [],
             "description": "Include paths for Xcelium linting."
           },
@@ -156,12 +157,15 @@
           },
           "verilogLinter.linting.xvlog.includePath": {
             "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "items": { "type": "string" },
             "default": [],
             "description": "Include paths for xvlog linting."
-          },
+          }
+        }
+      },
+      {
+        "title": "Verilog & SystemVerilog: Formatting",
+        "properties": {
           "verilogLinter.formatting.formatter": {
             "type": "string",
             "enum": [
