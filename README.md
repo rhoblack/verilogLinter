@@ -79,4 +79,4 @@ VS Code 설정(`Ctrl + ,`)에서 `verilogLinter`를 검색하여 아래의 옵�
 
 ---
 
-**Happy Coding with Verilog-HDL Linter!** 🚀
+**만든이: 노진호** | **Happy Coding with Verilog-HDL Linter!** 🚀
