@@ -37,6 +37,11 @@ export class VerilogCompletionProvider implements vscode.CompletionItemProvider 
         items.push(...this.getInternalSymbols(document));
         items.push(...this.getPackageCompletions());
 
+        // 6. Classes, Tasks, Functions
+        items.push(...this.getClassCompletions());
+        items.push(...this.getTaskCompletions());
+        items.push(...this.getFunctionCompletions());
+
         return items;
     }
 
@@ -143,6 +148,33 @@ export class VerilogCompletionProvider implements vscode.CompletionItemProvider 
         return packages.map(pkg => {
             const item = new vscode.CompletionItem(pkg.name, vscode.CompletionItemKind.Module);
             item.detail = 'Package';
+            return item;
+        });
+    }
+
+    private getClassCompletions(): vscode.CompletionItem[] {
+        const classes = this.indexer.getClasses();
+        return classes.map(cls => {
+            const item = new vscode.CompletionItem(cls.name, vscode.CompletionItemKind.Class);
+            item.detail = 'Class';
+            return item;
+        });
+    }
+
+    private getTaskCompletions(): vscode.CompletionItem[] {
+        const tasks = this.indexer.getTasks();
+        return tasks.map(tsk => {
+            const item = new vscode.CompletionItem(tsk.name, vscode.CompletionItemKind.Method);
+            item.detail = 'Task';
+            return item;
+        });
+    }
+
+    private getFunctionCompletions(): vscode.CompletionItem[] {
+        const functions = this.indexer.getFunctions();
+        return functions.map(fn => {
+            const item = new vscode.CompletionItem(fn.name, vscode.CompletionItemKind.Function);
+            item.detail = 'Function';
             return item;
         });
     }

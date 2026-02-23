@@ -26,11 +26,19 @@ export interface MacroInfo {
     uri: vscode.Uri;
 }
 
+export interface SymbolInfo {
+    name: string;
+    uri: vscode.Uri;
+}
+
 export class ModuleIndexer {
     private moduleCache: Map<string, ModuleInfo> = new Map();
     private packageCache: Map<string, PackageInfo> = new Map();
     private interfaceCache: Map<string, InterfaceInfo> = new Map();
     private macroCache: Map<string, MacroInfo> = new Map();
+    private classCache: Map<string, SymbolInfo> = new Map();
+    private taskCache: Map<string, SymbolInfo> = new Map();
+    private functionCache: Map<string, SymbolInfo> = new Map();
     private watcher: vscode.FileSystemWatcher | undefined;
 
     constructor() {}
@@ -63,6 +71,9 @@ export class ModuleIndexer {
         removeByUri(this.packageCache);
         removeByUri(this.interfaceCache);
         removeByUri(this.macroCache);
+        removeByUri(this.classCache);
+        removeByUri(this.taskCache);
+        removeByUri(this.functionCache);
     }
 
     public async indexFile(uri: vscode.Uri) {
@@ -110,6 +121,25 @@ export class ModuleIndexer {
         while ((match = macroRegex.exec(text)) !== null) {
             this.macroCache.set(match[1], { name: match[1], uri });
         }
+
+        // 5. Extract Classes, Tasks, and Functions
+        const classRegex = /\bclass\s+(?:virtual\s+)?(\w+)/g;
+        while ((match = classRegex.exec(text)) !== null) {
+            this.classCache.set(match[1], { name: match[1], uri });
+        }
+
+        const taskRegex = /\btask\s+(?:automatic\s+|static\s+)?(\w+)/g;
+        while ((match = taskRegex.exec(text)) !== null) {
+            this.taskCache.set(match[1], { name: match[1], uri });
+        }
+
+        const funcRegex = /\bfunction\s+(?:automatic\s+|static\s+)?(?:[\w\[\]:\s]+\s+)?(\w+)\s*(?:\(|;)/g;
+        while ((match = funcRegex.exec(text)) !== null) {
+            // Function names might match types, filter out basic types if captured accidentally
+            if (!['void', 'int', 'static', 'automatic'].includes(match[1])) {
+                this.functionCache.set(match[1], { name: match[1], uri });
+            }
+        }
     }
 
     private extractPackageMembers(text: string): string[] {
@@ -156,6 +186,18 @@ export class ModuleIndexer {
 
     public getMacros(): MacroInfo[] {
         return Array.from(this.macroCache.values());
+    }
+
+    public getClasses(): SymbolInfo[] {
+        return Array.from(this.classCache.values());
+    }
+
+    public getTasks(): SymbolInfo[] {
+        return Array.from(this.taskCache.values());
+    }
+
+    public getFunctions(): SymbolInfo[] {
+        return Array.from(this.functionCache.values());
     }
 
     public getPackage(name: string): PackageInfo | undefined {
