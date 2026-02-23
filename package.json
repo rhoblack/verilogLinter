@@ -4,7 +4,7 @@
   "publisher": "rhoblack",
   "description": "A Verilog-HDL linter extension for VS Code",
   "author": "Rho JIN-HO(rhoblack)",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "engines": {
     "vscode": "^1.90.0"
   },
