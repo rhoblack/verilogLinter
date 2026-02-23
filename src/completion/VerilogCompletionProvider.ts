@@ -53,21 +53,54 @@ export class VerilogCompletionProvider implements vscode.CompletionItemProvider 
 
     private getInternalSymbols(document: vscode.TextDocument): vscode.CompletionItem[] {
         const text = document.getText();
-        const symbolRegex = /\b(reg|wire|logic|integer|genvar|parameter|localparam|typedef\s+struct|typedef\s+enum|typedef\s+union)\s+(?:\[.*?\]\s+)?(\w+)/g;
         const items: vscode.CompletionItem[] = [];
         const seen = new Set<string>();
 
+        // Remove comments and string literals to avoid false positives
+        let cleanText = text.replace(/\/\/.*$/gm, '');
+        cleanText = cleanText.replace(/\/\*[\s\S]*?\*\//g, '');
+        cleanText = cleanText.replace(/"[^"]*"/g, '');
+
+        // Match common Verilog/SystemVerilog declarations
+        const declRegex = /\b(input|output|inout|reg|wire|logic|integer|int|bit|byte|shortint|longint|genvar|parameter|localparam|typedef)\b([\s\S]*?)[;)]/g;
         let match;
-        while ((match = symbolRegex.exec(text)) !== null) {
-            const type = match[1];
-            const name = match[2];
-            if (!seen.has(name)) {
-                const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Variable);
-                item.detail = type;
-                items.push(item);
-                seen.add(name);
+        while ((match = declRegex.exec(cleanText)) !== null) {
+            const keyword = match[1];
+            let declBody = match[2];
+
+            // Remove array dimensions [ ... ]
+            declBody = declBody.replace(/\[.*?\]/g, ' ');
+            // Remove assignments = ... up to the next comma
+            declBody = declBody.replace(/=[^,]+/g, ' ');
+
+            const words = declBody.match(/\b[a-zA-Z_]\w*\b/g);
+            if (words) {
+                for (const word of words) {
+                    if (['signed', 'unsigned', 'reg', 'logic', 'wire', 'int', 'bit', 'byte', 'struct', 'enum', 'union', 'type'].includes(word)) {
+                        continue;
+                    }
+                    if (!seen.has(word)) {
+                        const item = new vscode.CompletionItem(word, vscode.CompletionItemKind.Variable);
+                        item.detail = keyword;
+                        items.push(item);
+                        seen.add(word);
+                    }
+                }
             }
         }
+
+        // Loop iterators
+        const loopRegex = /\b(?:for|foreach)\s*\(\s*(?:int|integer|genvar)\s+([a-zA-Z_]\w*)/g;
+        while ((match = loopRegex.exec(cleanText)) !== null) {
+            const word = match[1];
+            if (!seen.has(word)) {
+                const item = new vscode.CompletionItem(word, vscode.CompletionItemKind.Variable);
+                item.detail = 'iterator';
+                items.push(item);
+                seen.add(word);
+            }
+        }
+
         return items;
     }
 
