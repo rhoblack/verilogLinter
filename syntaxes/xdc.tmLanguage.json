@@ -1,0 +1,90 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Xilinx Design Constraints",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#variables"
+    },
+    {
+      "include": "#commands"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.xdc",
+          "match": "(?<=^|\\s)#.*$"
+        },
+        {
+          "name": "comment.line.number-sign.xdc",
+          "match": "^#.*$"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.xdc",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.xdc",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.xdc",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.xdc",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.xdc",
+          "match": "\\b(if|else|elseif|for|foreach|while|switch|case|default|break|continue|return)\\b"
+        }
+      ]
+    },
+    "commands": {
+      "patterns": [
+        {
+          "name": "support.function.xdc",
+          "match": "\\b(create_clock|create_generated_clock|set_input_delay|set_output_delay|set_clock_groups|set_false_path|set_max_delay|set_min_delay|set_multicycle_path|set_property|get_ports|get_pins|get_clocks|get_cells|get_nets|current_design|set_operating_conditions|set_units|report_timing|report_utilization)\\b"
+        },
+        {
+          "name": "keyword.other.xdc",
+          "match": "-(name|period|waveform|source|divide_by|multiply_by|edges|edge_shift|add|master_clock|max|min|clock|fall|rise|network_latency_included|source_latency_included|group|asynchronous|logically_exclusive|physically_exclusive|setup|hold|from|to|through|dict)\\b"
+        }
+      ]
+    },
+    "variables": {
+      "patterns": [
+        {
+          "name": "variable.other.xdc",
+          "match": "\\$[a-zA-Z_][a-zA-Z0-9_]*"
+        }
+      ]
+    }
+  },
+  "scopeName": "source.xdc"
+}

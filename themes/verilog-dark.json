@@ -12,7 +12,7 @@
     {
       "name": "VerilogM - Comment (Block)",
       "scope": ["comment.block", "comment.line"],
-      "settings": { "foreground": "#6C7086", "fontStyle": "italic" }
+      "settings": { "foreground": "#6A9955", "fontStyle": "italic" }
     },
     {
       "name": "VerilogM - String",
@@ -234,6 +234,15 @@
         "variable.language"
       ],
       "settings": { "foreground": "#89B4FA", "fontStyle": "bold" }
+    },
+    {
+      "name": "XDC - Comment",
+      "scope": [
+        "comment.line.number-sign.xdc",
+        "comment.line.xdc",
+        "comment.block.xdc"
+      ],
+      "settings": { "foreground": "#6A9955", "fontStyle": "italic" }
     }
   ]
 }

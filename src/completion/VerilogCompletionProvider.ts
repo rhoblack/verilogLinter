@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ModuleIndexer } from '../indexer/ModuleIndexer';
+import { UVM_MACROS, UVM_CLASSES } from './UvmDictionary';
 
 export class VerilogCompletionProvider implements vscode.CompletionItemProvider {
     constructor(private indexer: ModuleIndexer) {}
@@ -38,7 +39,7 @@ export class VerilogCompletionProvider implements vscode.CompletionItemProvider 
         items.push(...this.getPackageCompletions());
 
         // 6. Classes, Tasks, Functions
-        items.push(...this.getClassCompletions());
+        items.push(...this.getClassCompletions(document));
         items.push(...this.getTaskCompletions());
         items.push(...this.getFunctionCompletions());
 
@@ -152,13 +153,53 @@ export class VerilogCompletionProvider implements vscode.CompletionItemProvider 
         });
     }
 
-    private getClassCompletions(): vscode.CompletionItem[] {
+    private isUvmEnabled(document: vscode.TextDocument): boolean {
+        // 1. Check workspace settings
+        const config = vscode.workspace.getConfiguration('verilogLinter.linting');
+        let linter = config.get<string>('linter', 'auto');
+        if (linter === 'auto') {
+            const isWindows = process.platform === 'win32';
+            linter = isWindows ? config.get<string>('windowsLinter', 'xvlog') 
+                               : config.get<string>('linuxLinter', 'vcs');
+        }
+        
+        const vcsUvm = config.get<boolean>('vcs.uvmSupport', false);
+        const xceliumUvm = config.get<boolean>('xcelium.uvmSupport', false);
+        const xvlogUvm = config.get<boolean>('xvlog.uvmSupport', false);
+
+        if ((linter === 'vcs' && vcsUvm) || 
+            (linter === 'xcelium' && xceliumUvm) || 
+            (linter === 'xvlog' && xvlogUvm)) {
+            return true;
+        }
+
+        // 2. Fallback to checking document content for UVM usage
+        const text = document.getText();
+        if (text.includes('`include "uvm_macros.svh"') || text.includes('import uvm_pkg::*')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private getClassCompletions(document: vscode.TextDocument): vscode.CompletionItem[] {
         const classes = this.indexer.getClasses();
-        return classes.map(cls => {
+        const items = classes.map(cls => {
             const item = new vscode.CompletionItem(cls.name, vscode.CompletionItemKind.Class);
             item.detail = 'Class';
             return item;
         });
+
+        if (this.isUvmEnabled(document)) {
+            for (const uvmClass of UVM_CLASSES) {
+                const item = new vscode.CompletionItem(uvmClass.label, vscode.CompletionItemKind.Class);
+                item.detail = uvmClass.detail;
+                item.documentation = new vscode.MarkdownString('UVM Built-in Class');
+                items.push(item);
+            }
+        }
+
+        return items;
     }
 
     private getTaskCompletions(): vscode.CompletionItem[] {
@@ -236,6 +277,20 @@ export class VerilogCompletionProvider implements vscode.CompletionItemProvider 
                 item.detail = 'Workspace Macro';
                 items.push(item);
                 seen.add(macro.name);
+            }
+        }
+
+        if (this.isUvmEnabled(document)) {
+            for (const uvmMacro of UVM_MACROS) {
+                if (!seen.has(uvmMacro.label)) {
+                    const item = new vscode.CompletionItem(uvmMacro.label, vscode.CompletionItemKind.Constant);
+                    item.detail = uvmMacro.detail;
+                    if (uvmMacro.desc) {
+                        item.documentation = new vscode.MarkdownString(uvmMacro.desc);
+                    }
+                    items.push(item);
+                    seen.add(uvmMacro.label);
+                }
             }
         }
 

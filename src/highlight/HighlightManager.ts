@@ -32,7 +32,12 @@ const PALETTE_16_DARK: TextMateRule[] = [
     { scope: ["keyword.operator.assignment.verilog", "keyword.operator.assignment.systemverilog"], settings: { foreground: "#89B4FA" } },
     { scope: ["keyword.operator.bitwise.verilog", "keyword.operator.bitwise.systemverilog", "keyword.operator.arithmetic.verilog", "keyword.operator.arithmetic.systemverilog", "keyword.operator.logical.verilog", "keyword.operator.logical.systemverilog"], settings: { foreground: "#89DCEB" } },
     { scope: ["string.quoted.double.verilog", "string.quoted.double.systemverilog"], settings: { foreground: "#A6E3A1" } },
-    { scope: ["comment.block.verilog", "comment.line.verilog", "comment.block.systemverilog", "comment.line.double-slash.systemverilog"], settings: { foreground: "#585B70", fontStyle: "italic" } },
+    { scope: ["comment.block.verilog", "comment.line.verilog", "comment.block.systemverilog", "comment.line.double-slash.systemverilog"], settings: { foreground: "#6A9955", fontStyle: "italic" } },
+    { scope: ["comment.line.number-sign.xdc", "comment.line.xdc", "comment.block.xdc"], settings: { foreground: "#6A9955", fontStyle: "italic" } },
+    { scope: ["string.quoted.double.xdc", "string.quoted.single.xdc"], settings: { foreground: "#A6E3A1" } },
+    { scope: ["keyword.control.xdc", "keyword.other.xdc"], settings: { foreground: "#F38BA8" } },
+    { scope: ["support.function.xdc"], settings: { foreground: "#74C7EC", fontStyle: "bold" } },
+    { scope: ["variable.other.xdc"], settings: { foreground: "#F5C2E7" } }
 ];
 
 // ── 16-color Light ─────────────────────────────────────────────────────────────
@@ -59,6 +64,11 @@ const PALETTE_16_LIGHT: TextMateRule[] = [
     { scope: ["keyword.operator.bitwise.verilog", "keyword.operator.bitwise.systemverilog", "keyword.operator.arithmetic.verilog", "keyword.operator.arithmetic.systemverilog", "keyword.operator.logical.verilog", "keyword.operator.logical.systemverilog"], settings: { foreground: "#267F99" } },
     { scope: ["string.quoted.double.verilog", "string.quoted.double.systemverilog"], settings: { foreground: "#A31515" } },
     { scope: ["comment.block.verilog", "comment.line.verilog", "comment.block.systemverilog", "comment.line.double-slash.systemverilog"], settings: { foreground: "#6A9955", fontStyle: "italic" } },
+    { scope: ["comment.line.number-sign.xdc", "comment.line.xdc", "comment.block.xdc"], settings: { foreground: "#6A9955", fontStyle: "italic" } },
+    { scope: ["string.quoted.double.xdc", "string.quoted.single.xdc"], settings: { foreground: "#A31515" } },
+    { scope: ["keyword.control.xdc", "keyword.other.xdc"], settings: { foreground: "#AF00DB" } },
+    { scope: ["support.function.xdc"], settings: { foreground: "#267F99", fontStyle: "bold" } },
+    { scope: ["variable.other.xdc"], settings: { foreground: "#811F3F" } }
 ];
 
 // ── All scopes used (for merging into 4-color groups) ──────────────────────────
@@ -71,6 +81,7 @@ const KEYWORD_SCOPES = [
     "storage.modifier.systemverilog", "storage.modifier.verilog",
     "entity.name.function.preprocessor.verilog", "entity.name.function.preprocessor.systemverilog",
     "keyword.other.compiler-directive.verilog", "keyword.other.compiler-directive.systemverilog",
+    "keyword.control.xdc", "keyword.other.xdc"
 ];
 
 const TYPE_SCOPES = [
@@ -79,6 +90,7 @@ const TYPE_SCOPES = [
     "support.class.uvm.systemverilog", "support.function.uvm.systemverilog",
     "support.function.builtin.verilog", "support.function.builtin.systemverilog",
     "entity.name.function.call.system.verilog", "entity.name.function.call.system.systemverilog",
+    "support.function.xdc"
 ];
 
 const CONSTANT_SCOPES = [
@@ -95,12 +107,15 @@ const CONSTANT_SCOPES = [
     "keyword.operator.bitwise.verilog", "keyword.operator.bitwise.systemverilog",
     "keyword.operator.arithmetic.verilog", "keyword.operator.arithmetic.systemverilog",
     "keyword.operator.logical.verilog", "keyword.operator.logical.systemverilog",
+    "variable.other.xdc"
 ];
 
 const COMMENT_STRING_SCOPES = [
     "string.quoted.double.verilog", "string.quoted.double.systemverilog",
     "comment.block.verilog", "comment.line.verilog",
     "comment.block.systemverilog", "comment.line.double-slash.systemverilog",
+    "string.quoted.double.xdc", "string.quoted.single.xdc",
+    "comment.line.number-sign.xdc", "comment.line.xdc", "comment.block.xdc"
 ];
 
 // ── 4-color Dark ───────────────────────────────────────────────────────────────
@@ -109,6 +124,7 @@ const PALETTE_4_DARK: TextMateRule[] = [
     { scope: TYPE_SCOPES, settings: { foreground: "#4EC9B0" } },
     { scope: CONSTANT_SCOPES, settings: { foreground: "#B5CEA8" } },
     { scope: COMMENT_STRING_SCOPES, settings: { foreground: "#6A9955", fontStyle: "italic" } },
+    { scope: ["comment.line.number-sign.xdc", "comment.line.xdc", "comment.block.xdc"], settings: { foreground: "#6A9955", fontStyle: "italic" } }
 ];
 
 // ── 4-color Light ──────────────────────────────────────────────────────────────
@@ -117,6 +133,7 @@ const PALETTE_4_LIGHT: TextMateRule[] = [
     { scope: TYPE_SCOPES, settings: { foreground: "#267F99" } },
     { scope: CONSTANT_SCOPES, settings: { foreground: "#098658" } },
     { scope: COMMENT_STRING_SCOPES, settings: { foreground: "#6A9955", fontStyle: "italic" } },
+    { scope: ["comment.line.number-sign.xdc", "comment.line.xdc", "comment.block.xdc"], settings: { foreground: "#6A9955", fontStyle: "italic" } }
 ];
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -260,7 +277,7 @@ export class HighlightManager implements vscode.Disposable {
             return false;
         }
         return rule.scope.some(
-            (s) => s.endsWith('.verilog') || s.endsWith('.systemverilog')
+            (s) => s.endsWith('.verilog') || s.endsWith('.systemverilog') || s.endsWith('.xdc')
                 || s.startsWith('storage.type.module') || s.startsWith('storage.type.interface')
                 || s.startsWith('storage.type.class') || s.startsWith('storage.type.package')
                 || s.startsWith('storage.type.program') || s.startsWith('storage.type.udp')
