@@ -55,8 +55,15 @@ export default class VcsLinter extends BaseLinter {
 
     const exe = this.config.executable || 'vcs';
     const innerCommand = `"${exe}" ${args.join(' ')}`;
-    // Run inside a bash login shell to ensure environment variables like VCS_HOME are sourced
-    const command = `bash -lc '${innerCommand}'`;
+    // Run inside a login shell to ensure environment variables like VCS_HOME, SNPSLMD_LICENSE_FILE are sourced
+    // Use the user's actual shell ($SHELL) instead of hardcoding bash,
+    // since many EDA environments use csh/tcsh where license variables are set in .cshrc
+    const userShell = process.env.SHELL || '/bin/bash';
+    const shellBase = path.basename(userShell);
+    // csh/tcsh: use -c (they auto-source .cshrc, so -l is not needed and not supported)
+    // bash/sh/zsh: use -lc to source login profile
+    const shellFlag = (shellBase === 'csh' || shellBase === 'tcsh') ? '-c' : '-lc';
+    const command = `${userShell} ${shellFlag} '${innerCommand}'`;
     const cwd = this.getWorkingDirectory(doc);
 
     this.outputChannel.appendLine(`[VCS Execute] running command: ${command}`);
@@ -71,7 +78,7 @@ export default class VcsLinter extends BaseLinter {
 
         // Only show the command not found error if we actually failed to run VCS
         // (If the output contains "Chronologic VCS", it means VCS actually ran, 
-        // and the error is just from a messy bash profile script)
+        // and the error is just from a messy shell profile script or license warning)
         const output = `${stdout}\n${_stderr}`;
         if (_error && !output.includes('Chronologic VCS') && ((_error as any).code === 127 || _stderr.includes('command not found') || _error.message?.includes('ENOENT'))) {
           vscode.window.showErrorMessage(`VCS linter ('${exe}') not found. Please set 'verilogLinter.linting.vcs.executable' to the absolute path in Settings.`);
